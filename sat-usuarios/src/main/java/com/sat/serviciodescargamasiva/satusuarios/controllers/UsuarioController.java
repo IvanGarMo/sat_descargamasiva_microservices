@@ -7,8 +7,6 @@ package com.sat.serviciodescargamasiva.satusuarios.controllers;
 import com.sat.serviciodescargamasiva.satusuarios.data.ResponseData;
 import com.sat.serviciodescargamasiva.satusuarios.data.Usuario;
 import com.sat.serviciodescargamasiva.satusuarios.jdbc.OperacionesUsuario;
-import com.sat.serviciodescargamasiva.satusuarios.jpa.JpaUsuario;
-import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -27,24 +25,29 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping(path="/usuarios", produces="application/json")
 public class UsuarioController {
     @Autowired
-    private JpaUsuario repo;
-    @Autowired
     private OperacionesUsuario opUsuario;
     
     @GetMapping
     public ResponseEntity<Usuario> cargaUsuario(@RequestHeader("uuid") String uuid) {
-        Optional<Usuario> usuario = repo.findByUid(uuid);
-        if(usuario.isEmpty()) {
+        try {
+            Usuario u = opUsuario.cargaUsuario(uuid); 
+            return new ResponseEntity<>(u, HttpStatus.OK);
+        } catch(NullPointerException ex) {
             return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
+        } catch(Exception ex) {
+            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
         }
-        return new ResponseEntity<>(usuario.get(), HttpStatus.OK);
     }
     
     @PostMapping
     public ResponseEntity<ResponseData> actualizaUsuario(@RequestHeader("uuid") String uuid, @RequestBody Usuario u) {
-        u.setUid(uuid);
-        ResponseData rd = opUsuario.actualizaUsuario(u);
-        return new ResponseEntity<>(rd, HttpStatus.OK);
+        try {
+            u.setUid(uuid);
+            ResponseData rd = opUsuario.actualizaUsuario(u);
+            return new ResponseEntity<>(rd, HttpStatus.OK);
+        } catch(Exception ex) {
+            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
     
 }

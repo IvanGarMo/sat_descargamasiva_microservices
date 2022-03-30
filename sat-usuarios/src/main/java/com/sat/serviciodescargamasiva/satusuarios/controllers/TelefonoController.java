@@ -7,7 +7,13 @@ package com.sat.serviciodescargamasiva.satusuarios.controllers;
 import com.sat.serviciodescargamasiva.satusuarios.data.ResponseData;
 import com.sat.serviciodescargamasiva.satusuarios.data.Telefono;
 import com.sat.serviciodescargamasiva.satusuarios.jdbc.OperacionesTelefono;
+import com.sat.serviciodescargamasiva.satusuarios.jpa.JpaTelefono;
+import java.sql.Connection;
+import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
+import lombok.Value;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -25,23 +31,26 @@ import org.springframework.web.bind.annotation.RestController;
  */
 @RestController
 @RequestMapping(path="/telefonos", produces="application/json")
+@Slf4j
 public class TelefonoController {
-
     @Autowired
     private OperacionesTelefono telefonoRepo;
-
+    @Autowired
+    private JpaTelefono jpaTelefono;
+    
     @GetMapping
     public ResponseEntity<List<Telefono>> getTelefonos(@RequestHeader("uuid") String uuid) {
-        List<Telefono> telefonos = telefonoRepo.listaTelefonosUsuario(uuid);
-        if(telefonos != null && telefonos.size() > 0) {
-            return new ResponseEntity<>(telefonos, HttpStatus.OK);
-        }
+//        List<Telefono> telefonos = telefonoRepo.listaTelefonosUsuario(uuid);
+        //List<Telefono> telefonos = jpaTelefono.findByIdUsuario(0)
+//        if(telefonos != null && !telefonos.isEmpty()) {
+//            return new ResponseEntity<>(telefonos, HttpStatus.OK);
+//        }
         return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
     }
     
     @PostMapping
-    public ResponseEntity<ResponseData> capturaTelefono(@RequestHeader("uuid") String uuid, String telefono) {
-        ResponseData rd = telefonoRepo.capturaTelefonoUsuario(uuid, telefono);
+    public ResponseEntity<ResponseData> capturaTelefono(@RequestHeader("uuid") String uuid, @RequestBody Telefono telefono) {
+        ResponseData rd = telefonoRepo.capturaTelefonoUsuario(uuid, telefono.getTelefono());
         return new ResponseEntity(rd, HttpStatus.OK);
     }
     

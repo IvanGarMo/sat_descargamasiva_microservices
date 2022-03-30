@@ -18,8 +18,6 @@ import lombok.Setter;
  *
  * @author IvanGarMo
  */
-@Entity
-@Table(name="Usuarios")
 @Getter
 @Setter
 @NoArgsConstructor
@@ -27,20 +25,25 @@ public class Usuario {
     @Id
     @GeneratedValue(strategy=GenerationType.IDENTITY)
     private long idUsuario;
-    @Column(name="UidUserFirebase")
     private String uid;
-    @Column(name="Nombre")
     private String nombre;
-    @Column(name="ApPaterno")
     private String apPaterno;
-    @Column(name="ApMaterno")
     private String apMaterno;
-    @Column(name="Correo")
     private String correo;
-    @Column(name="IdSuscripcion")
     private int idSuscripcion;
-    @Column(name="Organizacion")
     private String organizacion;
-    @Column(name="Activo")
     private boolean activo;
+    
+    public boolean getActivo() {
+        return activo;
+    }
+    
+    @Override
+    public String toString() {
+        return "[ uid:"+this.uid+" IdUsuario: "+this.idUsuario+" Nombre: "+this.nombre+
+                " ApPaterno +"+this.apPaterno+"ApMaterno: "+this.apMaterno+
+                " Correo: "+ this.correo + "Organizacion: "+this.organizacion +
+                " Activo: "+this.activo
+                + "]";
+    }
 }

@@ -14,4 +14,6 @@ import com.sat.serviciodescargamasiva.satusuarios.data.Usuario;
 public interface OperacionesUsuario {
     ResponseData actualizaUsuario(Usuario u);
     ResponseData registraUsuario(Usuario u);
+    Usuario cargaUsuario(String uuid);
+    int getIdUsuario(String uuid);
 }

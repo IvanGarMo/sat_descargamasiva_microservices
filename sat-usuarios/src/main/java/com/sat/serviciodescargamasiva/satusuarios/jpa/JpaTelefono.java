@@ -4,14 +4,14 @@
  */
 package com.sat.serviciodescargamasiva.satusuarios.jpa;
 
-import com.sat.serviciodescargamasiva.satusuarios.data.Usuario;
-import java.util.Optional;
+import com.sat.serviciodescargamasiva.satusuarios.data.Telefono;
+import java.util.List;
 import org.springframework.data.repository.CrudRepository;
 
 /**
  *
  * @author IvanGarMo
  */
-public interface JpaUsuario extends CrudRepository<Usuario, Long> {
-    Optional<Usuario> findByUid(String uid);
+public interface JpaTelefono extends CrudRepository<Telefono, Long>{
+    List<Telefono> findByIdUsuario(long idUsuario);
 }

@@ -1,0 +1,7 @@
+/sat-clientes/target/
+/sat-config-server/target/
+/sat-eureka/target/
+/sat-servicio-descarga/target/
+/sat-suscripciones/target/
+/sat-usuarios/target/
+/sat-ws-descargamasiva/target

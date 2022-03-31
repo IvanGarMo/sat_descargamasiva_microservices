@@ -19,5 +19,5 @@ public interface OperacionesCliente {
     ResponseData guardaContrasenaCliente(String uidUsuario, long idCliente, String contrasena);
     ResponseData guardaCertificadoCliente(String uidUsuario, long idCliente, byte[] certificado);
     Cliente getCliente(long idCliente);
-    List<Cliente> getClientes(String uuid, String rfc, String nombre, String apPaterno, String apMaterno);
+    Object getClientes(String uuid, String rfc, String nombre, String apPaterno, String apMaterno);
 }

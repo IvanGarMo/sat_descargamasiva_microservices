@@ -5,9 +5,11 @@
 package com.sat.serviciodescargamasiva.satclientes.controller;
 
 import com.sat.serviciodescargamasiva.satclientes.data.Cliente;
+import com.sat.serviciodescargamasiva.satclientes.data.ClienteVista;
 import com.sat.serviciodescargamasiva.satclientes.data.FiltroCliente;
 import com.sat.serviciodescargamasiva.satclientes.data.ResponseData;
 import com.sat.serviciodescargamasiva.satclientes.jdbc.OperacionesCliente;
+//import com.sat.serviciodescargamasiva.satclientes.jpa.ClienteVistaJpa;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -48,8 +50,8 @@ public class ClienteController {
     
     @DeleteMapping(path="/{idCliente}")
     public ResponseEntity<ResponseData> eliminaCliente(@RequestHeader("uuid") String uuid, 
-            @PathVariable int clienteId) {
-        ResponseData rd = operacionesCliente.eliminaCliente(uuid, clienteId);
+            @PathVariable("idCliente") int idCliente) {
+        ResponseData rd = operacionesCliente.eliminaCliente(uuid, idCliente);
         return new ResponseEntity<>(rd, HttpStatus.OK);
     }
     
@@ -75,11 +77,12 @@ public class ClienteController {
         return new ResponseEntity<>(c, HttpStatus.OK);
     }
     
-    @GetMapping(path="/lista")
-    public ResponseEntity<List<Cliente>> cargaListaClientes(@RequestHeader("uuid") String uuid, 
+    @PostMapping(path="/lista")
+    public ResponseEntity<Object> cargaListaClientes(@RequestHeader("uuid") String uuid, 
             @RequestBody FiltroCliente filtroCliente) {
-        List<Cliente> clientes = operacionesCliente.getClientes(uuid, filtroCliente.getRfc(), 
-                filtroCliente.getNombre(), filtroCliente.getApPaterno(), filtroCliente.getApMaterno());
+        Object clientes = operacionesCliente.getClientes(uuid, 
+                filtroCliente.getRfc(), filtroCliente.getNombre(), filtroCliente.getApPaterno(), 
+                filtroCliente.getApMaterno());
         return new ResponseEntity<>(clientes, HttpStatus.OK);
     }
  }

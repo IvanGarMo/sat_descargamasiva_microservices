@@ -34,6 +34,7 @@ ALTER TABLE Clientes ADD Contrasena VARCHAR(100);
 ;
 CREATE TABLE CertificadoClientes(
 	IdCertificado BIGINT PRIMARY KEY AUTO_INCREMENT,
+    CuentaConCertificado BIT,
     IdCliente BIGINT, 
     Certificado BLOB,
     FOREIGN KEY(IdCliente) REFERENCES Clientes(IdCliente)
@@ -55,14 +56,22 @@ CREATE TABLE UsuariosClientes(
 	Activo BIT
  )
  ;
+ INSERT INTO Suscripciones(Descripcion, LimiteInferiorDescargas, LimiteSuperiorDescargas, CostoPorXml, Activo)
+	VALUES('Suscripcion 1', 1, 1000, 0.50, 1);
+INSERT INTO Suscripciones(Descripcion, LimiteInferiorDescargas, LimiteSuperiorDescargas, CostoPorXml, Activo)
+	VALUES('Suscripcion 2', 1001, 10000, 0.30, 1);
+INSERT INTO Suscripciones(Descripcion, LimiteInferiorDescargas, LimiteSuperiorDescargas, CostoPorXml, Activo)
+	VALUES('Suscripcion 3', 10001, 10000, 0.10, 1);
+ ;
 CREATE VIEW UsuariosCliente AS
 SELECT U.UidUserFirebase, U.IdUsuario, CONCAT_WS(' ', U.Nombre, U.ApPaterno, U.ApMaterno) AS NombreUsuario, U.Correo, 
 	C.IdCliente, C.Rfc, C.Nombre, C.ApPaterno, C.ApMaterno, 
     CONCAT_WS(' ', C.Nombre, C.ApPaterno, C.ApMaterno) AS NombreCliente, 
     C.CuentaConContrasena, C.Contrasena, 
-    IFNULL(CC.Certificado, 0) AS CuentaConCertificado, 
+    IFNULL(CC.CuentaConCertificado, 0) AS CuentaConCertificado, 
     CC.Certificado
 FROM Usuarios AS U 
 JOIN UsuariosClientes AS UC ON U.IdUsuario=UC.IdUsuario
 JOIN Clientes AS C ON UC.IdCliente = C.IdCliente
 LEFT JOIN CertificadoClientes AS CC ON C.IdCliente=CC.IdCliente;
+;

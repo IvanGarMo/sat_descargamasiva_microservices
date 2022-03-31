@@ -26,8 +26,8 @@ import org.springframework.stereotype.Repository;
  */
 @Repository
 public class OperacionesTelefonoImplementacion implements OperacionesTelefono {
-    @Autowired
-    DataSource ds;
+//    @Autowired
+//    DataSource ds;
     @Autowired
     JdbcTemplate jdbc;
     

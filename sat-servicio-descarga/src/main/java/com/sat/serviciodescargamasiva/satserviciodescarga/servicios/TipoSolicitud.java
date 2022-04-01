@@ -6,8 +6,19 @@ package com.sat.serviciodescargamasiva.satserviciodescarga.servicios;
 
 /**
  *
- * @author elda_
+ * @author IvanGarMo
  */
-class TipoSolicitud {
-    
-}
+    public enum TipoSolicitud {
+        CFDI {
+            @Override
+            public String toString() {
+                return "CFDI";
+            }
+        },
+        RETENCIONES {
+            @Override
+            public String toString() {
+                return "Retenciones";
+            }
+        }
+    }

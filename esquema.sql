@@ -75,3 +75,16 @@ JOIN UsuariosClientes AS UC ON U.IdUsuario=UC.IdUsuario
 JOIN Clientes AS C ON UC.IdCliente = C.IdCliente
 LEFT JOIN CertificadoClientes AS CC ON C.IdCliente=CC.IdCliente;
 ;
+CREATE TABLE SolicitudDescarga(
+	IdDescarga BIGINT PRIMARY KEY AUTO_INCREMENT,
+	IdDescargaSat BIGINT,
+    IdCliente BIGINT,
+    FechaInicioPeriodo DATETIME,
+    FechaFinPeriodo DATETIME,
+    RfcEmisor VARCHAR(13),
+    RfcReceptor VARCHAR(13),
+    RfcSolicitante VARCHAR(13),
+    Estado INT,
+    NoFacturas INT,
+    DescargasPermitidas INT
+)

@@ -12,6 +12,6 @@ import com.sat.serviciodescargamasiva.satsuscripciones.data.Suscripcion;
  * @author IvanGarMo
  */
 public interface OperacionesSuscripciones {
-    Suscripcion getSuscripcionPorUsuario(String uuid);
+    int getSuscripcionPorUsuario(String uuid);
     ResponseData cambiaSuscripcionUsuario(String uuid, int idSuscripcion);
 }

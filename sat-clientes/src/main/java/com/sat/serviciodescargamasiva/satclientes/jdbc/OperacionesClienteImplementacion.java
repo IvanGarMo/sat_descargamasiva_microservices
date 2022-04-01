@@ -51,6 +51,7 @@ public class OperacionesClienteImplementacion implements OperacionesCliente {
          ResponseData rd = new ResponseData();
          rd.setOpValida((boolean) out.get("_opvalida"));
          rd.setMensaje(out.get("_mensaje").toString());
+         rd.setIdCliente((int) out.get("_idcliente"));
          return rd;
     }
 
@@ -115,8 +116,8 @@ public class OperacionesClienteImplementacion implements OperacionesCliente {
         
         Map<String, Object> out = jdbcCall.execute(inParam);
         ResponseData rd = new ResponseData();
-        rd.setOpValida((boolean) out.get("_OpValida"));
-        rd.setMensaje(out.get("_Mensaje").toString());
+        rd.setOpValida((boolean) out.get("_opvalida"));
+        rd.setMensaje(out.get("_mensaje").toString());
         return rd;
     }
 

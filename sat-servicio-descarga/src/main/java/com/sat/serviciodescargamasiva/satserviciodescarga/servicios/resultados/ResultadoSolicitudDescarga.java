@@ -2,16 +2,16 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
  */
-package com.sat.serviciodescargamasiva.satserviciodescarga.data;
+package com.sat.serviciodescargamasiva.satserviciodescarga.servicios.resultados;
 
 import lombok.Data;
 
 /**
  *
- * @author elda_
+ * @author IvanGarMo
  */
 @Data
-public class ResultadoSolicitudDescarga {
+public class ResultadoSolicitudDescarga extends Resultado {
     private int codigoRespuesta;
-    private String solicitud;
+    private String idSolicitud;    
 }

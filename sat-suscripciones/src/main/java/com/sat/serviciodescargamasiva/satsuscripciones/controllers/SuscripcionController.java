@@ -12,6 +12,7 @@ import java.util.Set;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -24,34 +25,30 @@ import org.springframework.web.bind.annotation.RestController;
  * @author IvanGarMo
  */
 @RestController
-@RequestMapping("/suscripciones")
+@RequestMapping(path="/suscripciones", produces="application/json")
+@CrossOrigin(origins="*")
 public class SuscripcionController {
     @Autowired
-    private SuscripcionJpa suscripcionRepo;
+    private SuscripcionJpa jpa;
     @Autowired
-    private OperacionesSuscripciones operacionesSus;
+    private OperacionesSuscripciones opSus;
     
     @GetMapping
     public ResponseEntity<Iterable<Suscripcion>> getSuscripciones() {
-        Iterable<Suscripcion> suscripciones = suscripcionRepo.findAll();
-        return new ResponseEntity<>(suscripciones, HttpStatus.OK);
-    }
-    
-    @GetMapping("/usuario")
-    public ResponseEntity<Suscripcion> getSuscripcionUsuario(@RequestHeader("uuid") String uuid) {
-        Suscripcion sus;
-        try {
-            sus = operacionesSus.getSuscripcionPorUsuario(uuid);
-        } catch(Exception ex) {
-            return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
-        }
+        Iterable<Suscripcion> sus = jpa.findAll();
         return new ResponseEntity<>(sus, HttpStatus.OK);
     }
     
-    @PostMapping("/usuario")
-    public ResponseEntity<ResponseData> cambiaSuscripcionUsuario(@RequestHeader("uuid") String uuid, 
+    @PostMapping
+    public ResponseEntity<ResponseData> cambiaSuscripcion(@RequestHeader("uuid") String uuid, 
             @RequestBody Suscripcion suscripcion) {
-        ResponseData rd = operacionesSus.cambiaSuscripcionUsuario(uuid, suscripcion.getIdSuscripcion());
+        ResponseData rd = opSus.cambiaSuscripcionUsuario(uuid, suscripcion.getIdSuscripcion());
         return new ResponseEntity<>(rd, HttpStatus.OK);
+    }
+    
+    @GetMapping("/cliente")
+    public ResponseEntity<Integer> suscripcionUsuario(@RequestHeader("uuid") String uuid) {
+        Integer sus = opSus.getSuscripcionPorUsuario(uuid);
+        return new ResponseEntity<>(sus, HttpStatus.OK);
     }
 }

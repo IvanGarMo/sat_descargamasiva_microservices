@@ -11,6 +11,4 @@ import org.springframework.data.repository.CrudRepository;
  *
  * @author IvanGarMo
  */
-public interface SuscripcionJpa extends CrudRepository<Suscripcion, Integer>{
-    
-}
+public interface SuscripcionJpa extends CrudRepository<Suscripcion, Integer>{ }

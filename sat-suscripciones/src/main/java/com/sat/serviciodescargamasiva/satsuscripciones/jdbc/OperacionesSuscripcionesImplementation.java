@@ -16,48 +16,38 @@ import java.util.List;
 import java.util.Map;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.simple.SimpleJdbcCall;
+import org.springframework.stereotype.Repository;
 /**
  *
  * @author IvanGarMo
  */
+@Repository
 public class OperacionesSuscripcionesImplementation implements OperacionesSuscripciones {
-    @Autowired
-    DataSource ds;
     @Autowired
     JdbcTemplate jdbc;
     
     @Override
-    public Suscripcion getSuscripcionPorUsuario(String uuid) {
-        return jdbc.queryForObject(String.format("cargaSuscripcionUsuario {0}", uuid), 
-                new SuscripcionRowMapper());
-    }
-
-    @Override
     public ResponseData cambiaSuscripcionUsuario(String uuid, int idSuscripcion) {
-        SimpleJdbcCall jdbcCall = new SimpleJdbcCall(jdbc).withProcedureName("cambiaSuscripcionUsuario");
+        SimpleJdbcCall jdbcCall = new SimpleJdbcCall(jdbc).withProcedureName("CambiaSuscripcionCliente");
         Map<String, Object> inParam = new HashMap<>();
         inParam.put("_UidUserFirebase", uuid);
         inParam.put("_IdSuscripcion", idSuscripcion);
         
          Map<String, Object> out = jdbcCall.execute(inParam);
          ResponseData rd = new ResponseData();
-         rd.setOpValida((boolean) out.get("_OpValida"));
-         rd.setMensaje(out.get("_Mensaje").toString());
+         rd.setOpValida((boolean) out.get("_opvalida"));
+         rd.setMensaje(out.get("_mensaje").toString());
          return rd;
     }
-    
-    private class SuscripcionRowMapper implements RowMapper<Suscripcion> {
-        @Override
-        public Suscripcion mapRow(ResultSet rs, int rowNum) throws SQLException {
-            Suscripcion s = new Suscripcion();
-            s.setIdSuscripcion(rs.getInt("IdSuscripcion"));
-            s.setDescripcion(rs.getString("Descripcion"));
-            s.setLimiteInferiorDescargas(rs.getLong("LimiteInferiorDescargas"));
-            s.setLimiteSuperiorDescargas(rs.getLong("LimiteSuperiorDescargas"));
-            s.setCostoPorXml(rs.getBigDecimal("CostoPorXml"));
-            s.setActivo(rs.getBoolean("Activo"));
-            return s;
-        }
+
+    @Override
+    public int getSuscripcionPorUsuario(String uuid) {
+        SimpleJdbcCall jdbcCall = new SimpleJdbcCall(jdbc).withProcedureName("CargaSuscripcionCliente");
+        Map<String, Object> inParam = new HashMap<>();
+        inParam.put("_UidUserFirebase", uuid);
+        
+        Map<String, Object> out = jdbcCall.execute(inParam);
+        return (int) out.get("_idsuscripcion");
     }
     
 }

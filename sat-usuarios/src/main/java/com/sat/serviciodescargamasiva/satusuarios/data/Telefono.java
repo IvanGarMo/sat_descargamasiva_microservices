@@ -10,6 +10,7 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
+import javax.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -30,6 +31,8 @@ public class Telefono {
     @GeneratedValue(strategy=GenerationType.IDENTITY)
     @Column(name="idtelefono")
     private long idTelefono;
+    
+    @Size(min=0, max=13, message="El campo 'Teléfono debe tener entre 0 y 13 caracteres'")
     private String telefono;
     
     @Override

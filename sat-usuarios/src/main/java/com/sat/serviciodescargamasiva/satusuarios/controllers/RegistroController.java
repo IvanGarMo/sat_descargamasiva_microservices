@@ -31,7 +31,11 @@ public class RegistroController {
     
     @PostMapping
     public ResponseEntity<ResponseData> registrarUsuario(@RequestBody Usuario cuerpoUsuario) {
-        ResponseData rd = opUsuario.registraUsuario(cuerpoUsuario);
-        return new ResponseEntity<>(rd, HttpStatus.OK);
+        try {
+            ResponseData rd = opUsuario.registraUsuario(cuerpoUsuario);
+            return new ResponseEntity<>(rd, HttpStatus.OK);
+        } catch(Exception ex) {
+            return new ResponseEntity(null, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 }

@@ -36,4 +36,7 @@ public class Cliente {
     
     private boolean cuentaConCertificado;
     private byte[] certificado;
+    
+    private boolean certificadoNube;
+    private boolean certificadoBaseDatos;
 }

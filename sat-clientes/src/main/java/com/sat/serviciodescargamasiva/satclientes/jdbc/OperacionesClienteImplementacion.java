@@ -41,18 +41,20 @@ public class OperacionesClienteImplementacion implements OperacionesCliente {
         SimpleJdbcCall jdbcCall = new SimpleJdbcCall(jdbc).withProcedureName("guardaCliente");
         
         Map<String, Object> inParam = new HashMap<>();
-        inParam.put("_UidUserFirebase", uidUsuario);
-        inParam.put("_Rfc", c.getRfc());
-        inParam.put("_Nombre", c.getNombre());
-        inParam.put("_ApPaterno", c.getApPaterno());
-        inParam.put("_ApMaterno", c.getApMaterno());
+        inParam.put("_uidUserFirebase", uidUsuario);
+        inParam.put("_rfc", c.getRfc());
+        inParam.put("_nombre", c.getNombre());
+        inParam.put("_apPaterno", c.getApPaterno());
+        inParam.put("_apMaterno", c.getApMaterno());
+        inParam.put("_certificadoNube", c.isCertificadoNube());
+        inParam.put("_certificadoBaseDatos", c.isCertificadoBaseDatos());
         
-         Map<String, Object> out = jdbcCall.execute(inParam);
-         ResponseData rd = new ResponseData();
-         rd.setOpValida((boolean) out.get("_opvalida"));
-         rd.setMensaje(out.get("_mensaje").toString());
-         rd.setIdCliente((int) out.get("_idcliente"));
-         return rd;
+        Map<String, Object> out = jdbcCall.execute(inParam);
+        ResponseData rd = new ResponseData();
+        rd.setOpValida((boolean) out.get("_opvalida"));
+        rd.setMensaje(out.get("_mensaje").toString());
+        rd.setIdCliente((int) out.get("_idcliente"));
+        return rd;
     }
 
     @Override
@@ -67,16 +69,16 @@ public class OperacionesClienteImplementacion implements OperacionesCliente {
         inParam.put("_ApPaterno", c.getApPaterno());
         inParam.put("_ApMaterno", c.getApMaterno());
         
-         Map<String, Object> out = jdbcCall.execute(inParam);
-         ResponseData rd = new ResponseData();
-         rd.setOpValida((boolean) out.get("_opvalida"));
-         rd.setMensaje(out.get("_mensaje").toString());
-         return rd;
+        Map<String, Object> out = jdbcCall.execute(inParam);
+        ResponseData rd = new ResponseData();
+        rd.setOpValida((boolean) out.get("_opvalida"));
+        rd.setMensaje(out.get("_mensaje").toString());
+        return rd;
     }
     
     @Override
     public ResponseData eliminaCliente(String uidUsuario, int idCliente) {
-        SimpleJdbcCall jdbcCall = new SimpleJdbcCall(jdbc).withProcedureName("eliminaCliente");
+        SimpleJdbcCall jdbcCall = new SimpleJdbcCall(jdbc).withProcedureName("desactivaCliente");
         
         Map<String, Object> inParam = new HashMap<>();
         inParam.put("_UidUserFirebase", uidUsuario);
@@ -106,27 +108,11 @@ public class OperacionesClienteImplementacion implements OperacionesCliente {
     }
 
     @Override
-    public ResponseData guardaCertificadoCliente(String uidUsuario, long idCliente, byte[] certificado) {
-        SimpleJdbcCall jdbcCall = new SimpleJdbcCall(jdbc).withProcedureName("actualizaCertificado");
-        
-        Map<String, Object> inParam = new HashMap<>();
-        inParam.put("_UidUserFirebase", uidUsuario);
-        inParam.put("_IdCliente", idCliente);
-        inParam.put("_Certificado", certificado);
-        
-        Map<String, Object> out = jdbcCall.execute(inParam);
-        ResponseData rd = new ResponseData();
-        rd.setOpValida((boolean) out.get("_opvalida"));
-        rd.setMensaje(out.get("_mensaje").toString());
-        return rd;
-    }
-
-    @Override
     public Cliente getCliente(long idCliente) {
          SimpleJdbcCall jdbcCall = new SimpleJdbcCall(jdbc).withProcedureName("getCliente");
          
         Map<String, Object> inParam = new HashMap<>();
-        inParam.put("_IdCliente", idCliente);
+        inParam.put("_idCliente", idCliente);
          
         Map<String, Object> out = jdbcCall.execute(inParam);
         Cliente c = new Cliente();
@@ -158,6 +144,38 @@ public class OperacionesClienteImplementacion implements OperacionesCliente {
 //                return storedProcResult.get(s);
 //            }
 //        });
+    }
+
+    @Override
+    public ResponseData guardaCertificadoBaseDatos(String uuid, long idCliente, byte[] certificado) {
+        SimpleJdbcCall jdbcCall = new SimpleJdbcCall(jdbc).withProcedureName("actualizaCertificadoBlob");
+        
+        Map<String, Object> inParam = new HashMap<>();
+        inParam.put("_UidUserFirebase", uuid);
+        inParam.put("_IdCliente", idCliente);
+        inParam.put("_Certificado", certificado);
+        
+         Map<String, Object> out = jdbcCall.execute(inParam);
+         ResponseData rd = new ResponseData();
+         rd.setOpValida((boolean) out.get("_opvalida"));
+         rd.setMensaje(out.get("_mensaje").toString());
+         return rd;
+    }
+
+    @Override
+    public ResponseData guardaCertificadoBlob(String uuid, long idCliente, String urlBlob) {
+        SimpleJdbcCall jdbcCall = new SimpleJdbcCall(jdbc).withProcedureName("actualizaCertificadoNube");
+        
+        Map<String, Object> inParam = new HashMap<>();
+        inParam.put("_UidUserFirebase", uuid);
+        inParam.put("_IdCliente", idCliente);
+        inParam.put("_Url", urlBlob);
+        
+         Map<String, Object> out = jdbcCall.execute(inParam);
+         ResponseData rd = new ResponseData();
+         rd.setOpValida((boolean) out.get("_opvalida"));
+         rd.setMensaje(out.get("_mensaje").toString());
+         return rd;
     }
 }
 

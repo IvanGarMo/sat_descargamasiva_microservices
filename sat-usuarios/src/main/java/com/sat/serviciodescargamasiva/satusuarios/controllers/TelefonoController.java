@@ -37,28 +37,37 @@ import org.springframework.web.bind.annotation.RestController;
 public class TelefonoController {
     @Autowired
     private OperacionesTelefono telefonoRepo;
-    @Autowired
-    private JpaTelefono jpaTelefono;
     
     @GetMapping
-    public ResponseEntity<List<Telefono>> getTelefonos(@RequestHeader("uuid") String uuid) {
-//        List<Telefono> telefonos = telefonoRepo.listaTelefonosUsuario(uuid);
-        //List<Telefono> telefonos = jpaTelefono.findByIdUsuario(0)
-//        if(telefonos != null && !telefonos.isEmpty()) {
-//            return new ResponseEntity<>(telefonos, HttpStatus.OK);
-//        }
-        return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
+    public ResponseEntity<Object> getTelefonos(@RequestHeader("uuid") String uuid) {
+        try {
+            Object object = telefonoRepo.listaTelefonosUsuario(uuid);
+            return new ResponseEntity(object, HttpStatus.OK);
+        } catch(Exception ex) {
+            return new ResponseEntity(null, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
     
     @PostMapping
-    public ResponseEntity<ResponseData> capturaTelefono(@RequestHeader("uuid") String uuid, @RequestBody Telefono telefono) {
-        ResponseData rd = telefonoRepo.capturaTelefonoUsuario(uuid, telefono.getTelefono());
-        return new ResponseEntity(rd, HttpStatus.OK);
+    public ResponseEntity<ResponseData> capturaTelefono(@RequestHeader("uuid") String uuid, 
+            @RequestBody Telefono telefono) {
+        try {
+            ResponseData rd = telefonoRepo.capturaTelefonoUsuario(uuid, telefono.getTelefono());
+            return new ResponseEntity(rd, HttpStatus.OK);
+        } catch(Exception ex) {
+            return new ResponseEntity(null, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
     
     @DeleteMapping
-    public ResponseEntity<ResponseData> eliminaTelefono(@RequestHeader("uuid") String uuid, @RequestBody Telefono telefono) {
-        ResponseData rd = telefonoRepo.eliminaTelefonoUsuario(uuid, telefono.getIdTelefono());
-        return new ResponseEntity(rd, HttpStatus.OK);
+    public ResponseEntity<ResponseData> eliminaTelefono(@RequestHeader("uuid") String uuid, 
+            @RequestBody Telefono telefono) {        
+        try {
+            ResponseData rd = telefonoRepo.eliminaTelefonoUsuario(uuid, telefono.getIdTelefono());
+            return new ResponseEntity(rd, HttpStatus.OK);
+        } catch(Exception ex) {
+            return new ResponseEntity(null, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+        
     }
 }

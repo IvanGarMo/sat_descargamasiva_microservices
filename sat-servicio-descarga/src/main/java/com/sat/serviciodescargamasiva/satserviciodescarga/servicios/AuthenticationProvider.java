@@ -5,6 +5,7 @@
 package com.sat.serviciodescargamasiva.satserviciodescarga.servicios;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.security.InvalidKeyException;
 import java.security.KeyStoreException;
@@ -21,8 +22,8 @@ import java.security.cert.X509Certificate;
  * @author elda_
  */
 public interface AuthenticationProvider {
-    X509Certificate getCertificate(File file, char[] key) throws KeyStoreException, IOException, CertificateException, NoSuchAlgorithmException;
-    PrivateKey getPrivateKey(File file, char[] key) throws KeyStoreException, IOException, CertificateException, NoSuchAlgorithmException, UnrecoverableKeyException;
+    X509Certificate getCertificate(InputStream file, char[] key) throws KeyStoreException, IOException, CertificateException, NoSuchAlgorithmException;
+    PrivateKey getPrivateKey(InputStream file, char[] key) throws KeyStoreException, IOException, CertificateException, NoSuchAlgorithmException, UnrecoverableKeyException;
     void generate(X509Certificate certificate, PrivateKey privateKey) throws NoSuchAlgorithmException, SignatureException, InvalidKeyException, CertificateEncodingException;
     String getToken() throws IOException;
 }

@@ -18,6 +18,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Base64;
 import java.util.Date;
+import org.springframework.stereotype.Service;
 import org.w3c.dom.Document;
 import org.w3c.dom.NodeList;
 
@@ -25,6 +26,7 @@ import org.w3c.dom.NodeList;
  *
  * @author IvanGarMo
  */
+@Service
 public class RequestProviderImplementation implements RequestProvider {
     private Request request;
     private Mensajes mensajes;
@@ -52,7 +54,8 @@ public class RequestProviderImplementation implements RequestProvider {
     
     private final String rfcRegExp = "[A-Za-z]{4}[0-9]{6}[A-Za-z0-9]{3}";
     
-    private Resultado validate(String rfcSolicitante, String rfcEmisor, String rfcReceptor, 
+    @Override
+    public Resultado validate(String rfcSolicitante, String rfcEmisor, String rfcReceptor, 
             String fechaInicio, String fechaFinal, TipoSolicitud tipo) {
         Resultado rs = new Resultado();
         rs.setOperacionCorrecta(true);
@@ -89,6 +92,14 @@ public class RequestProviderImplementation implements RequestProvider {
             }
         }
         return rs;
+    }
+
+    @Override
+    public ResultadoSolicitudDescarga doRequest(X509Certificate certificate, PrivateKey privateKey, String rfcSolicitante, String rfcEmisor, String rfcReceptor, String fechaInicio, String fechaFinal, TipoSolicitud tipo) 
+            throws NoSuchAlgorithmException, SignatureException, InvalidKeyException, CertificateEncodingException {
+        this.request.generate(certificate, privateKey, rfcSolicitante, rfcEmisor, rfcReceptor, fechaInicio, fechaFinal, tipo);
+        String idRequest = this.request.sendRequest(rfcEmisor);
+        return this.request.getResult(idRequest);
     }
 }
 

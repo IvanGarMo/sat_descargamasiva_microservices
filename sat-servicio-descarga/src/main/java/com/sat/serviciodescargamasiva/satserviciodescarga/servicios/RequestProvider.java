@@ -4,6 +4,7 @@
  */
 package com.sat.serviciodescargamasiva.satserviciodescarga.servicios;
 
+import com.sat.serviciodescargamasiva.satserviciodescarga.servicios.resultados.Resultado;
 import com.sat.serviciodescargamasiva.satserviciodescarga.servicios.resultados.ResultadoSolicitudDescarga;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
@@ -17,10 +18,22 @@ import java.security.cert.X509Certificate;
  * @author IvanGarMo
  */
 public interface RequestProvider {
-    ResultadoSolicitudDescarga generate(X509Certificate certificate, PrivateKey privateKey, 
-            String rfcSolicitante, String rfcEmisor, String rfcReceptor, 
+    
+    ResultadoSolicitudDescarga generate(X509Certificate certificate, PrivateKey privateKey,
+            String rfcSolicitante, String rfcEmisor, String rfcReceptor,
             String fechaInicio, String fechaFinal, TipoSolicitud tipo)
             throws NoSuchAlgorithmException, SignatureException, InvalidKeyException, CertificateEncodingException;
+
     void setType(TipoSolicitud tipo);
+
     String sendRequest(String token);
+
+    ResultadoSolicitudDescarga doRequest(X509Certificate certificate, PrivateKey privateKey,
+            String rfcSolicitante, String rfcEmisor, String rfcReceptor,
+            String fechaInicio, String fechaFinal, TipoSolicitud tipo)
+            throws NoSuchAlgorithmException, SignatureException, InvalidKeyException, CertificateEncodingException;
+    
+    Resultado validate(String rfcSolicitante, String rfcEmisor, String rfcReceptor, 
+            String fechaInicio, String fechaFinal, TipoSolicitud tipo)
+            throws NoSuchAlgorithmException, SignatureException, InvalidKeyException, CertificateEncodingException;
 }

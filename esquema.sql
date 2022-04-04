@@ -23,11 +23,12 @@ CREATE TABLE UsuariosTelefonos(
 CREATE TABLE Clientes(
 	IdCliente BIGINT PRIMARY KEY AUTO_INCREMENT,
     Rfc CHAR(13),
-    IdUsuario INT,
     Nombre VARCHAR(100),
     ApPaterno VARCHAR(100),
     ApMaterno VARCHAR(100)
 )
+;
+SELECT * FROM Clientes;
 ;
 ALTER TABLE Clientes ADD CuentaConContrasena BIT;
 ALTER TABLE Clientes ADD Contrasena VARCHAR(100);
@@ -75,16 +76,28 @@ JOIN UsuariosClientes AS UC ON U.IdUsuario=UC.IdUsuario
 JOIN Clientes AS C ON UC.IdCliente = C.IdCliente
 LEFT JOIN CertificadoClientes AS CC ON C.IdCliente=CC.IdCliente;
 ;
+DROP TABLE SolicitudDescarga;
 CREATE TABLE SolicitudDescarga(
-	IdDescarga BIGINT PRIMARY KEY AUTO_INCREMENT,
-	IdDescargaSat BIGINT,
-    IdCliente BIGINT,
-    FechaInicioPeriodo DATETIME,
-    FechaFinPeriodo DATETIME,
-    RfcEmisor VARCHAR(13),
-    RfcReceptor VARCHAR(13),
-    RfcSolicitante VARCHAR(13),
-    Estado INT,
-    NoFacturas INT,
-    DescargasPermitidas INT
+	idDescarga BIGINT PRIMARY KEY AUTO_INCREMENT,
+	idDescargaSat VARCHAR(100),
+    idCliente BIGINT,
+    fechaInicioPeriodo DATETIME,
+    fechaFinPeriodo DATETIME,
+    rfcEmisor VARCHAR(13),
+    rfcReceptor VARCHAR(13),
+    rfcSolicitante VARCHAR(13),
+    estado INT,
+    noFacturas INT,
+    descargasPermitidas INT
 )
+SELECT * FROM SolicitudDescarga;
+SELECT * FROM Usuarios;
+SELECT * FROM Clientes;
+
+CREATE VIEW SolicitudClienteUsuario AS
+	SELECT S.idDescarga, S.idDescargaSat, C.idCliente, U.idUsuario, U.uidUserFirebase
+    FROM SolicitudDescarga AS S
+    JOIN Clientes AS C ON S.idCliente=C.idCliente
+    JOIN Usuarios as U ON C.idUsuario=C.idUsuario
+
+DROP VIEW SolicitudClienteUsuario;

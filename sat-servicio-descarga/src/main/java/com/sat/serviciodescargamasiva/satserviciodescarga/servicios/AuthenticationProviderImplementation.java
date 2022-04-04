@@ -41,18 +41,18 @@ public class AuthenticationProviderImplementation implements AuthenticationProvi
     }
     
     @Override
-    public X509Certificate getCertificate(File file, char[] key) throws KeyStoreException, IOException, CertificateException, NoSuchAlgorithmException {
+    public X509Certificate getCertificate(InputStream file, char[] key) throws KeyStoreException, IOException, CertificateException, NoSuchAlgorithmException {
         KeyStore ks = KeyStore.getInstance("PKCS12");
-        ks.load(new FileInputStream(file), key);
+        ks.load(file, key);
         String alias = ks.aliases().nextElement();
 
         return (X509Certificate) ks.getCertificate(alias);
     }
 
     @Override
-    public PrivateKey getPrivateKey(File file, char[] key) throws KeyStoreException, IOException, CertificateException, NoSuchAlgorithmException, UnrecoverableKeyException {
+    public PrivateKey getPrivateKey(InputStream file, char[] key) throws KeyStoreException, IOException, CertificateException, NoSuchAlgorithmException, UnrecoverableKeyException {
                 KeyStore ks = KeyStore.getInstance("PKCS12");
-        ks.load(new FileInputStream(file), key);
+        ks.load(file, key);
         String alias = ks.aliases().nextElement();
 
         return (PrivateKey) ks.getKey(alias, key);

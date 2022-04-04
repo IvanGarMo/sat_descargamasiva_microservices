@@ -32,24 +32,6 @@ public class OperacionesUsuarioImplementacion implements OperacionesUsuario {
     JdbcTemplate jdbc;
     
     @Override
-    public ResponseData actualizaUsuario(Usuario u) {
-        SimpleJdbcCall jdbcCall = new SimpleJdbcCall(jdbc).withProcedureName("ActualizaUsuario");
-        Map<String, Object> inParam = new HashMap<>();
-        inParam.put("_UidUserFirebase", u.getUid());
-        inParam.put("_Nombre", u.getNombre());
-        inParam.put("_ApPaterno", u.getApPaterno());
-        inParam.put("_ApMaterno", u.getApMaterno());
-        inParam.put("_Organizacion", u.getOrganizacion());
-        
-        Map<String, Object> out = jdbcCall.execute(inParam);
-        
-        ResponseData rd = new ResponseData();
-        rd.setOpValida((boolean) out.get("_opvalida"));
-        rd.setMensaje(out.get("_mensaje").toString());
-        return rd;
-    }
-    
-    @Override
     public ResponseData registraUsuario(Usuario u) {
         SimpleJdbcCall jdbcCall = new SimpleJdbcCall(jdbc).withProcedureName("SalvaUsuario");
         Map<String, Object> inParam = new HashMap<>();
@@ -61,6 +43,24 @@ public class OperacionesUsuarioImplementacion implements OperacionesUsuario {
         inParam.put("_IdSuscripcion", u.getIdSuscripcion());
         inParam.put("_Organizacion", u.getOrganizacion());
         inParam.put("_Activo", u.getActivo());
+        
+        Map<String, Object> out = jdbcCall.execute(inParam);
+        
+        ResponseData rd = new ResponseData();
+        rd.setOpValida((boolean) out.get("_opvalida"));
+        rd.setMensaje(out.get("_mensaje").toString());
+        return rd;
+    }
+    
+    @Override
+    public ResponseData actualizaUsuario(Usuario u) {
+        SimpleJdbcCall jdbcCall = new SimpleJdbcCall(jdbc).withProcedureName("ActualizaUsuario");
+        Map<String, Object> inParam = new HashMap<>();
+        inParam.put("_UidUserFirebase", u.getUid());
+        inParam.put("_Nombre", u.getNombre());
+        inParam.put("_ApPaterno", u.getApPaterno());
+        inParam.put("_ApMaterno", u.getApMaterno());
+        inParam.put("_Organizacion", u.getOrganizacion());
         
         Map<String, Object> out = jdbcCall.execute(inParam);
         
@@ -92,9 +92,9 @@ public class OperacionesUsuarioImplementacion implements OperacionesUsuario {
 
     @Override
     public int getIdUsuario(String uuid) {
-        SimpleJdbcCall jdbcCall = new SimpleJdbcCall(jdbc).withProcedureName("ConvierteUid");
+        SimpleJdbcCall jdbcCall = new SimpleJdbcCall(jdbc).withProcedureName("ReturnIdUsuario");
         Map<String, Object> inParam = new HashMap<>();
-        inParam.put("_UidUserFirebase", uuid);
+        inParam.put("_uidUsuarioFirebase", uuid);
         
         Map<String, Object> out = jdbcCall.execute(inParam);
         return (int) out.get("_idusuario");

@@ -4,16 +4,14 @@
  */
 package com.sat.serviciodescargamasiva.satserviciodescarga.jdbc;
 
-import com.sat.serviciodescargamasiva.satserviciodescarga.data.ContrasenaCertificado;
 import com.sat.serviciodescargamasiva.satserviciodescarga.data.ResponseData;
+import com.sat.serviciodescargamasiva.satserviciodescarga.data.Solicitud;
 
 /**
  *
  * @author IvanGarMo
  */
-public interface OperacionesSuscripcion {
-    boolean tieneAccesoCliente(int idCliente, String uidFirebase);
-    ResponseData tieneContrasena(int idCliente);
-    ResponseData tieneCertificado(int idCliente);
-    ContrasenaCertificado cargaDatosAutenticacion(int idCliente);
+public interface OperacionesSolicitud {
+    ResponseData guardaSolicitud(Solicitud solicitud);
+    Solicitud cargaDetalleSolicitud(long idDescarga);
 }

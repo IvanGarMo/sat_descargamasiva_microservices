@@ -15,5 +15,5 @@ import java.util.List;
 public interface OperacionesTelefono {
     ResponseData capturaTelefonoUsuario(String uuid, String telefono);
     ResponseData eliminaTelefonoUsuario(String uuid, long idTelefono);
-    //List<Telefono> listaTelefonosUsuario(String uuid);
+    Object listaTelefonosUsuario(String uuid);
 }

@@ -17,8 +17,8 @@ CREATE PROCEDURE SalvaUsuario(
     IF EXISTS(SELECT 1 FROM Usuario WHERE uidUserFirebase=_UidUserFirebase)
     THEN SELECT 0, 'El usuario ya existe' INTO _OpValida, _Mensaje;
     ELSE 
-		INSERT INTO Usuario(uidUserFirebase, nombre, apPaterno, apMaterno, correo, idSuscripcion, organizacion, activo)
-		VALUES (_UidUserFirebase, _Nombre, _ApPaterno, _ApMaterno, _Correo, _IdSuscripcion, _Organizacion, _Activo);
+		INSERT INTO Usuario(uidUserFirebase, nombre, apPaterno, apMaterno, correo, idSuscripcion, organizacion, activo, FechaHoraRegistro)
+		VALUES (_UidUserFirebase, _Nombre, _ApPaterno, _ApMaterno, _Correo, _IdSuscripcion, _Organizacion, _Activo, NOW());
 		SELECT 1, 'Usuario registrado exitosamente' INTO _OpValida, _Mensaje;
     END IF;
     END //

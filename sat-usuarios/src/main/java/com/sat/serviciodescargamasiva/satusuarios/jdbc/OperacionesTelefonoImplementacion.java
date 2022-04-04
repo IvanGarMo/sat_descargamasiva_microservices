@@ -9,6 +9,7 @@ import com.sat.serviciodescargamasiva.satusuarios.data.Telefono;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Types;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -17,7 +18,9 @@ import lombok.Value;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
+import org.springframework.jdbc.core.SqlParameter;
 import org.springframework.jdbc.core.simple.SimpleJdbcCall;
+import org.springframework.jdbc.object.StoredProcedure;
 import org.springframework.stereotype.Repository;
 
 /**
@@ -60,30 +63,22 @@ public class OperacionesTelefonoImplementacion implements OperacionesTelefono {
         return rd;
     }
 
-//    @Override
-//    public List<Telefono> listaTelefonosUsuario(String uuid) {
-//        try (Connection connection =
-//                     DriverManager.getConnection(URL, USERNAME, PASSWORD)) {
-//            String query = "call Get_Product_By_Price(?)";
-//            CallableStatement cb = connection.prepareCall(query);
-//            cb.setBigDecimal(1, new BigDecimal("50.99"));
-//            ResultSet rs = cb.executeQuery();
-//            while (rs.next()) {
-//                System.out.println("Product: " + rs.getString(1));
-//            }
-//        } catch (SQLException e) {
-//            throw e;
-//        }
-//    }
+    @Override
+    public Object listaTelefonosUsuario(String uuid) {
+        StoredProcedureTelefono mp = new StoredProcedureTelefono(jdbc, "listaTelefonoUsuario");
+        SqlParameter paramUid = new SqlParameter("_UidUserFirebase", Types.VARCHAR);
+        
+        SqlParameter[] paramArray = { paramUid };
+        mp.setParameters(paramArray);
+        mp.compile();
+        Map<String, Object> storedProcResult = mp.execute(uuid);
+        return storedProcResult.get("#result-set-1");
+    }
     
-    private class TelefonoRowMapper implements RowMapper<Telefono> {
-        @Override
-        public Telefono mapRow(ResultSet rs, int rowNum) throws SQLException {
-            Telefono tel = new Telefono();
-            tel.setIdUsuario(rs.getLong("IdUsuario"));
-            tel.setIdTelefono(rs.getLong("IdTelefono"));
-            tel.setTelefono(rs.getString("Telefono"));
-            return tel;
+    class StoredProcedureTelefono extends StoredProcedure {
+        public StoredProcedureTelefono(JdbcTemplate template, String name) {
+            super(template, name);
+            setFunction(false);
         }
     }
 }

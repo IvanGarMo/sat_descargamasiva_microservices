@@ -17,7 +17,9 @@ public interface OperacionesCliente {
     ResponseData actualizaCliente(String uidUsuario, Cliente c);
     ResponseData eliminaCliente(String uidUsuario, int idCliente);
     ResponseData guardaContrasenaCliente(String uidUsuario, long idCliente, String contrasena);
-    ResponseData guardaCertificadoCliente(String uidUsuario, long idCliente, byte[] certificado);
     Cliente getCliente(long idCliente);
     Object getClientes(String uuid, String rfc, String nombre, String apPaterno, String apMaterno);
+    
+    ResponseData guardaCertificadoBaseDatos(String uuid, long idCliente, byte[] certificado);
+    ResponseData guardaCertificadoBlob(String uuid, long idCliente, String urlBlob);
 }

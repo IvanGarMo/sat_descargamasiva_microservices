@@ -7,6 +7,7 @@ package com.sat.serviciodescargamasiva.satserviciodescarga.jdbc;
 import com.sat.serviciodescargamasiva.satserviciodescarga.data.ContrasenaCertificado;
 import com.sat.serviciodescargamasiva.satserviciodescarga.data.ResponseData;
 import com.sat.serviciodescargamasiva.satserviciodescarga.data.Solicitud;
+import java.io.ByteArrayInputStream;
 
 /**
  *
@@ -17,7 +18,9 @@ public interface OperacionesAutorizacion {
     ResponseData tieneContrasena(long idCliente);
     ResponseData tieneCertificado(long idCliente);
     
-    ContrasenaCertificado cargaDatosAutenticacion(long idCliente);
+    String cargaContrasena(long idCliente);
+    ByteArrayInputStream cargaCertificadoCliente(long idCliente);
+    ResponseData puedeHacerSolicitud(Solicitud solicitud);
     
     boolean tieneAccesoSolicitud(long idDescarga, String uidUser);
     ResponseData existeSolicitud(Solicitud solicitud);

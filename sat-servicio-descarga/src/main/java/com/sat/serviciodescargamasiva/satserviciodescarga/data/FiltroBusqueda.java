@@ -4,6 +4,7 @@
  */
 package com.sat.serviciodescargamasiva.satserviciodescarga.data;
 
+import java.util.Date;
 import lombok.Data;
 
 /**
@@ -11,7 +12,10 @@ import lombok.Data;
  * @author IvanGarMo
  */
 @Data
-public class ResponseData {
-    private boolean opValida;
-    private String mensaje;
+public class FiltroBusqueda {
+    private String rfcEmisor;
+    private String rfcReceptor;
+    private Date fechaInicioPeriodo;
+    private Date fechaFinPeriodo;
+    private int estado;
 }

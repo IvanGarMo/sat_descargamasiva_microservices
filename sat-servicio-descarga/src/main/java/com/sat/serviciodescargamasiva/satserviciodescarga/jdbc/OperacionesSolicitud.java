@@ -4,14 +4,20 @@
  */
 package com.sat.serviciodescargamasiva.satserviciodescarga.jdbc;
 
+import com.sat.serviciodescargamasiva.satserviciodescarga.data.FiltroBusqueda;
 import com.sat.serviciodescargamasiva.satserviciodescarga.data.ResponseData;
 import com.sat.serviciodescargamasiva.satserviciodescarga.data.Solicitud;
-
+import com.sat.serviciodescargamasiva.satserviciodescarga.data.SolicitudDetalle;
 /**
  *
  * @author IvanGarMo
  */
 public interface OperacionesSolicitud {
+    Object listaSolicitudes(String uuid, FiltroBusqueda filtro);
+    Object listaEstados();
     ResponseData guardaSolicitud(Solicitud solicitud);
-    Solicitud cargaDetalleSolicitud(long idDescarga);
+    SolicitudDetalle cargaDetalleSolicitud(long idDescarga);
+    String cargaUrlPaquetes(long idDescarga);
+    ResponseData guardaUrlPaquete(long idDescarga, String urlPaquete);
+    void guardaEstadoSolicitud(long idDescarga, int nuevoEstado);
 }

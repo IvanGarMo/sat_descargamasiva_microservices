@@ -11,7 +11,11 @@ import lombok.Data;
  * @author IvanGarMo
  */
 @Data
-public class ResponseData {
-    private boolean opValida;
-    private String mensaje;
+public class Cliente {
+    private String rfc;
+    private String nombre;
+    private String apPaterno;
+    private String apMaterno;
+    private boolean cuentaConContrasena;
+    private boolean cuentaConCertificado;
 }

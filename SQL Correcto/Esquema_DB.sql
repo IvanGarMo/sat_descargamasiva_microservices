@@ -29,10 +29,10 @@ INSERT INTO Suscripciones(descripcion, limiteInferiorDescargas, limiteSuperiorDe
 ;
 CREATE TABLE SolicitudDescarga(
 	idDescarga BIGINT PRIMARY KEY AUTO_INCREMENT,
-	idDescargaSat BIGINT,
+	idDescargaSat VARCHAR(100),
     idCliente BIGINT,
-    fechaInicioPeriodo DATETIME,
-    fechaFinPeriodo DATETIME,
+    fechaInicioPeriodo DATE,
+    fechaFinPeriodo DATE,
     rfcEmisor VARCHAR(13),
     rfcReceptor VARCHAR(13),
     rfcSolicitante VARCHAR(13),
@@ -40,6 +40,48 @@ CREATE TABLE SolicitudDescarga(
     noFacturas INT,
     descargasPermitidas INT
 )
+;
+CREATE TABLE EstadoSolicitud(
+	idEstado BIGINT PRIMARY KEY,
+    descripcionEstado VARCHAR(100)
+)
+;
+INSERT INTO EstadoSolicitud(idEstado, descripcionEstado) VALUES(1, 'Aceptada');
+INSERT INTO EstadoSolicitud(idEstado, descripcionEstado) VALUES(2, 'En proceso');
+INSERT INTO EstadoSolicitud(idEstado, descripcionEstado) VALUES(3, 'Terminada');
+INSERT INTO EstadoSolicitud(idEstado, descripcionEstado) VALUES(4, 'Error');
+INSERT INTO EstadoSolicitud(idEstado, descripcionEstado) VALUES(5, 'Rechazada');
+INSERT INTO EstadoSolicitud(idEstado, descripcionEstado) VALUES(6, 'Vencida');
+;
+CREATE TABLE PaquetesUrl(
+	idRegistro BIGINT PRIMARY KEY AUTO_INCREMENT,
+    idDescarga BIGINT, 
+    urlPaquetes VARCHAR(300)
+)
+;
+SELECT * FROM SolicitudDescarga;
+SELECT * FROM EstadoSolicitud;
+SELECT * FROM PaquetesUrl;
+SELECT * FROM Cliente;
+SELECT * FROM Cliente_Usuario;
+
+SELECT * FROM VistaGeneralSolicitud;
+SELECT * FROM EstadoSolicitud;
+DROP VIEW VistaGeneralSolicitud;
+SELECT * FROM SolicitudDescarga;
+
+DROP VIEW VistaGeneralSolicitud;
+CREATE VIEW VistaGeneralSolicitud AS
+SELECT SD.idDescarga, SD.idDescargaSat, SD.idCliente, SD.fechaInicioPeriodo, SD.fechaFinPeriodo,
+	SD.rfcEmisor, SD.rfcReceptor, SD.rfcSolicitante, SD.noFacturas, SD.descargasPermitidas,
+    ES.idEstado, IFNULL(ES.descripcionEstado, 'No disponible') AS descripcionEstado, 
+    CONCAT_WS(' ', C.nombre, C.apPaterno, C.apMaterno) AS nombreCliente, 
+    PU.urlPaquetes, CU.idUsuario
+FROM SolicitudDescarga SD
+LEFT JOIN EstadoSolicitud ES ON SD.estado=ES.idEstado
+JOIN Cliente C ON SD.idCliente=C.idCliente
+JOIN Cliente_Usuario CU ON C.idCliente=CU.idCliente
+LEFT JOIN PaquetesUrl PU ON PU.idDescarga=SD.idDescarga
 ;
 SELECT * FROM SolicitudDescarga;
 SELECT * FROM Usuarios;

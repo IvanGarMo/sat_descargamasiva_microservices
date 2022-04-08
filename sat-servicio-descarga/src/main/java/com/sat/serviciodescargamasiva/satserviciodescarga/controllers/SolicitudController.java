@@ -17,10 +17,13 @@ import com.sat.serviciodescargamasiva.satserviciodescarga.servicios.resultados.R
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.security.InvalidKeyException;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.security.PrivateKey;
+import java.security.SignatureException;
 import java.security.UnrecoverableKeyException;
+import java.security.cert.CertificateEncodingException;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -81,7 +84,7 @@ public class SolicitudController {
         
         //Es necesario validar que todos los campos de la solicitud estén en orden
         //Si no, es enviado de regreso
-        resultadoOperacion = this.validar(solicitud);
+        //resultadoOperacion = this.validar(solicitud);
         if(!resultadoOperacion.isOperacionCorrecta()) 
             return new ResponseEntity<>(resultadoOperacion, HttpStatus.BAD_REQUEST);
         
@@ -147,12 +150,13 @@ public class SolicitudController {
     }
     
     
-    private Resultado validar(Solicitud solicitud) {
+    private Resultado validar(Solicitud solicitud) throws NoSuchAlgorithmException, SignatureException, 
+            InvalidKeyException, CertificateEncodingException {
         return solicitudConnector.validate(
                 solicitud.getRfcSolicitante(),
                 solicitud.getRfcEmisor(),
                 solicitud.getRfcReceptor(),
-                solicitud.getfechaInicioPeriodo(),
+                solicitud.getFechaInicioPeriodo(),
                 solicitud.getFechaFinPeriodo(),
                 TipoSolicitud.CFDI
         );

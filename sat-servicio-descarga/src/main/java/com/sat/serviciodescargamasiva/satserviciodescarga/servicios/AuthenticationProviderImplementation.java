@@ -8,6 +8,10 @@ import com.sat.serviciodescargamasiva.satserviciodescarga.servicios.resultados.R
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 import java.security.InvalidKeyException;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
@@ -66,7 +70,20 @@ public class AuthenticationProviderImplementation implements AuthenticationProvi
 
     @Override
     public String getToken() throws IOException {
-        return this.auth.sendRequest(null);
+        String token = this.auth.sendRequest(null);
+        return URLDecoder.decode(token, StandardCharsets.UTF_8.toString());
+    }
+
+    @Override
+    public String doAuthentication(InputStream file, char[] charKey) 
+            throws KeyStoreException, NoSuchAlgorithmException, SignatureException, InvalidKeyException, 
+            CertificateEncodingException, UnsupportedEncodingException, IOException, CertificateException,
+            UnrecoverableKeyException {
+        X509Certificate certificate = this.getCertificate(file, charKey);
+        PrivateKey privateKey = this.getPrivateKey(file, charKey);
+        this.generate(certificate, privateKey);
+        String token = this.auth.sendRequest(null);
+        return URLDecoder.decode(token, StandardCharsets.UTF_8.toString());
     }
     
 }

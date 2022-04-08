@@ -32,7 +32,7 @@ import org.springframework.web.bind.annotation.RestController;
  */
 @RestController
 @RequestMapping(path="/telefonos", produces="application/json")
-@CrossOrigin(origins="*")
+//@CrossOrigin
 @Slf4j
 public class TelefonoController {
     @Autowired

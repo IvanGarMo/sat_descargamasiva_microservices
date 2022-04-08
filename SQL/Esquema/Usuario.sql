@@ -1,4 +1,4 @@
-USE SatDescargaMasiva
+USE SatDescargaMasiva;
 ;
 CREATE TABLE Usuario(
 	idUsuario BIGINT PRIMARY KEY AUTO_INCREMENT,
@@ -9,8 +9,11 @@ CREATE TABLE Usuario(
     correo VARCHAR(100),
     idSuscripcion INT,
     organizacion VARCHAR(100),
-    activo BIT
+    activo BIT, 
+    correoVerificado BIT
 )
+;
+ALTER TABLE Usuario ADD COLUMN correoVerificado BIT;
 ;
 ALTER TABLE Usuario ADD COLUMN MedioAutenticacion INT;
 ;
@@ -21,7 +24,6 @@ CREATE TABLE MedioAutenticacion(
 ;
 INSERT INTO MedioAutenticacion(descripcion) VALUES('Correo y contraseña');
 INSERT INTO MedioAutenticacion(descripcion) VALUES('Google');
-SELECT * FROM MedioAutenticacion;
 ;
 ALTER TABLE Usuario ADD COLUMN FechaHoraRegistro DATETIME;
 ;

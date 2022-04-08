@@ -28,7 +28,7 @@ import org.springframework.web.bind.annotation.RestController;
  * @author IvanGarMo
  */
 @RestController
-@RequestMapping(path="/clientes/contacto", produces="application/json", consumes="application/json")
+@RequestMapping(path="/clientes/contacto", produces="application/json")
 @CrossOrigin(origins="*")
 @Slf4j
 public class MedioContactoController {
@@ -40,10 +40,10 @@ public class MedioContactoController {
     @GetMapping("/lista")
     public ResponseEntity<Object> getLista() {
         Object obj = medioRepo.cargaListaMedioContacto();
-        return new ResponseEntity<>(obj, null);
+        return new ResponseEntity<>(obj, HttpStatus.OK);
     }
     
-    @GetMapping
+    @PostMapping(path="/registrados")
     public ResponseEntity<Object> cargaListaCliente(@RequestHeader("uuid") String uuid, 
                 @RequestBody MedioContacto medio) {
         ResponseData rd = autorizaService.puedeAcceder(uuid, medio.getIdCliente());
@@ -55,7 +55,7 @@ public class MedioContactoController {
         }
         
         Object obj = medioRepo.cargaListaMedioContactoCliente(medio.getIdCliente());
-        return new ResponseEntity<>(obj, null);
+        return new ResponseEntity<>(obj, HttpStatus.OK);
     }
     
     @PostMapping
@@ -83,6 +83,7 @@ public class MedioContactoController {
         if(!autorizaService.puedeRealizarOperacionMedioContacto(medio)) {
             return new ResponseEntity<>(rd, HttpStatus.FORBIDDEN);
         }
+        rd = medioRepo.actualizaMedioContactoCliente(medio.getIdCliente(), medio);
         return new ResponseEntity<>(rd, HttpStatus.OK);
     }
     
@@ -96,6 +97,8 @@ public class MedioContactoController {
         if(!autorizaService.puedeRealizarOperacionMedioContacto(medio)) {
             return new ResponseEntity<>(rd, HttpStatus.FORBIDDEN);
         }
+        
+        rd = medioRepo.eliminaMedioContactoCliente(medio.getIdCliente(), medio);
         return new ResponseEntity<>(rd, HttpStatus.OK);
     }
 }

@@ -6,6 +6,7 @@ package com.sat.serviciodescargamasiva.satserviciodescarga.servicios;
 
 import com.sat.serviciodescargamasiva.satserviciodescarga.servicios.resultados.Resultado;
 import com.sat.serviciodescargamasiva.satserviciodescarga.servicios.resultados.ResultadoSolicitudDescarga;
+import java.io.IOException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.security.PrivateKey;
@@ -31,7 +32,8 @@ public interface RequestProvider {
     ResultadoSolicitudDescarga doRequest(X509Certificate certificate, PrivateKey privateKey,
             String rfcSolicitante, String rfcEmisor, String rfcReceptor,
             String fechaInicio, String fechaFinal, TipoSolicitud tipo)
-            throws NoSuchAlgorithmException, SignatureException, InvalidKeyException, CertificateEncodingException;
+            throws NoSuchAlgorithmException, SignatureException, InvalidKeyException, CertificateEncodingException,
+            IOException;
     
     Resultado validate(String rfcSolicitante, String rfcEmisor, String rfcReceptor, 
             String fechaInicio, String fechaFinal, TipoSolicitud tipo)

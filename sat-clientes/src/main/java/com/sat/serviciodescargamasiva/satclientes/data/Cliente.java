@@ -7,6 +7,7 @@ package com.sat.serviciodescargamasiva.satclientes.data;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import lombok.Data;
+import org.springframework.web.multipart.MultipartFile;
 
 /**
  *
@@ -35,7 +36,7 @@ public class Cliente {
     private String contrasena;
     
     private boolean cuentaConCertificado;
-    private byte[] certificado;
+    private MultipartFile certificado;
     
     private boolean certificadoNube;
     private boolean certificadoBaseDatos;

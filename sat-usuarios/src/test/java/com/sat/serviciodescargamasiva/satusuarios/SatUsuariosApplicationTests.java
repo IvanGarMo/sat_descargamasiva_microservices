@@ -12,25 +12,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 @SpringBootTest
 @Slf4j
 class SatUsuariosApplicationTests {
-        @Autowired
-        private JpaTelefono jpa;
-        @Autowired
-        private OperacionesUsuario operacionesUsuario;
-    
 	@Test
 	void contextLoads() {
 	}
-        
-        @Test
-        void leeId() {
-            log.info("Lee id: "+operacionesUsuario.getIdUsuario("BpwOa6zUAFTbJe3qD4LjjvddaPq2"));
-        }
-        
-        @Test
-        void leeTelefonos() {
-            List<Telefono> telefonos = jpa.findByIdUsuario(1L);
-            log.info("------------------------------------------------");
-            telefonos.forEach(t -> log.info(t.toString()));
-        }
-
 }

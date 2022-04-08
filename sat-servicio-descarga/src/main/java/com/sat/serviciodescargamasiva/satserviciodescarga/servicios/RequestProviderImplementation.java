@@ -96,8 +96,9 @@ public class RequestProviderImplementation implements RequestProvider {
 
     @Override
     public ResultadoSolicitudDescarga doRequest(X509Certificate certificate, PrivateKey privateKey, String rfcSolicitante, String rfcEmisor, String rfcReceptor, String fechaInicio, String fechaFinal, TipoSolicitud tipo) 
-            throws NoSuchAlgorithmException, SignatureException, InvalidKeyException, CertificateEncodingException {
-        this.request.generate(certificate, privateKey, rfcSolicitante, rfcEmisor, rfcReceptor, fechaInicio, fechaFinal, tipo);
+            throws NoSuchAlgorithmException, SignatureException, InvalidKeyException, CertificateEncodingException,
+            IOException {
+        //this.request.generate(certificate, privateKey, rfcSolicitante, rfcEmisor, rfcReceptor, fechaInicio, fechaFinal, tipo);
         String idRequest = this.request.sendRequest(rfcEmisor);
         return this.request.getResult(idRequest);
     }

@@ -132,7 +132,7 @@ CREATE PROCEDURE getCliente(
     OUT _CuentaConCertificado BIT
 )
 	BEGIN
-    SELECT V.rfc, V.nombreCliente, V.apPaternoCliente, V.apMaternoCliente, V.cuentaConContrasena, 
+    SELECT V.rfc, -1, V.nombreCliente, V.apPaternoCliente, V.apMaternoCliente, V.cuentaConContrasena, 
     V.cuentaConCertificado
     FROM VistaClienteUsuario V
     WHERE V.idCliente=_idCliente
@@ -180,6 +180,28 @@ CREATE PROCEDURE desactivaCliente(
     END //
 DELIMITER ;
 ;
+USE SatDescargaMasiva;
+SELECT * FROM Usuario;
+DROP PROCEDURE getListaClientesIdNombre;
+CALL getListaClientesIdNombre('hXLtTCe2L0e0PvssJ0TVmS2SQ5o1');
+DELIMITER //
+CREATE PROCEDURE getListaClientesIdNombre(
+	IN _UidUserFirebase VARCHAR(100)
+)
+	BEGIN
+    SET @_IdUsuario= -1; 
+    CALL ReturnIdUsuario(_UidUserFirebase, @_IdUsuario);
+    SELECT -1 AS idCliente, '-Seleccione un cliente-' AS nombre, 
+    '' as cuentaConContrasena, 
+    '' as cuentaConCertificado
+    UNION
+    SELECT idCliente, CONCAT_WS(' ', V.nombreCliente, v.apPaternoCliente, v.apMaternoCliente) AS nombre,
+    CASE V.cuentaConContrasena WHEN 0 THEN 'No cuenta con contraseña' ELSE 'Cuenta con contraseña' END AS cuentaConContrasena,
+    CASE V.cuentaConCertificado WHEN 0 THEN 'No cuenta con certificado' ELSE 'Cuenta con certificado' END AS cuentaConCertificado
+    FROM VistaClienteUsuario V WHERE idUsuario=@_idUsuario;
+    END//
+DELIMITER ;
+;
 DELIMITER //
 CREATE PROCEDURE actualizaContrasena(
 	IN _UidUserFirebase VARCHAR(100),
@@ -191,12 +213,18 @@ CREATE PROCEDURE actualizaContrasena(
 	BEGIN
     SET @_IdUsuario= -1; 
 	CALL ReturnIdUsuario(_UidUserFirebase, @_IdUsuario);
-    IF NOT EXISTS(SELECT 1 FROM Cliente_Usuario WHERE idUsuario=@_IdUsuario AND idCliente=_IdCliente)
-		THEN SELECT 0, 'Error: Se intentó actualizar la contraseña de un usuario inexistente' INTO _OpValida, _Mensaje;
-    ELSE
-		UPDATE Cliente_Contrasena SET cuentaConContrasena=1, contrasena=_Contrasena
-        WHERE idCliente=_IdCliente;
-        SELECT 1, 'Se ha guardado correctamente la contraseña del usuario' INTO _OpValida, _Mensaje;
+		IF NOT EXISTS(SELECT 1 FROM Cliente_Usuario WHERE idUsuario=@_IdUsuario AND idCliente=_IdCliente)
+			THEN SELECT 0, 'Error: Se intentó actualizar la contraseña de un usuario inexistente' INTO _OpValida, _Mensaje;
+		ELSE
+			IF NOT EXISTS(SELECT 1 FROM Cliente_Contrasena WHERE idCliente=_IdCliente)
+				THEN INSERT INTO Cliente_Contrasena(idCliente, cuentaConContrasena, contrasena)
+				VALUES(_IdCliente, 1, _Contrasena);
+                SELECT 1, 'Se ha guardado correctamente la contraseña del usuario' INTO _OpValida, _Mensaje;
+			ELSE 
+				UPDATE Cliente_Contrasena SET cuentaConContrasena=1, contrasena=_Contrasena
+			WHERE idCliente=_IdCliente;
+			SELECT 1, 'Se ha guardado correctamente la contraseña del usuario' INTO _OpValida, _Mensaje;
+            END IF;
     END IF;
     END //
 DELIMITER ;
@@ -245,6 +273,7 @@ CREATE PROCEDURE actualizaCertificadoNube(
     ELSE 
 		INSERT INTO Cliente_Certificado_Nube(idCliente, cuentaConCertificado, urlCertificado) 
 			VALUES(_IdCliente, 1, _Url);
+		SELECT 1, 'Se ha actualizado correctamente el certificado' INTO _OpValida, _Mensaje;
     END IF;
     END //
 DELIMITER ;
@@ -282,8 +311,7 @@ DELIMITER //
     )
     BEGIN
 		SELECT * 
-        FROM MedioContactoClientes WHERE idCliente=_IdCliente
-        GROUP BY(idMedio);
+        FROM MedioContactoClientes WHERE idCliente=_IdCliente ORDER BY idMedio ASC;
     END //
 DELIMITER ;
 ;

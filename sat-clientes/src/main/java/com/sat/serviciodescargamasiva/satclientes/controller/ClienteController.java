@@ -41,7 +41,7 @@ public class ClienteController {
     private AutorizacionOperacion autorizaOperacion;
     private boolean suboCertificadoNube = false;
     
-    private ObjetoValidacion objValidacion;
+//    private ObjetoValidacion objValidacion;
     
     public ClienteController(OperacionesCliente operacionesCliente) {
         this.operacionesCliente = operacionesCliente;
@@ -50,11 +50,6 @@ public class ClienteController {
     @PostMapping(consumes="application/json")
     public ResponseEntity<ResponseData> guardaCliente(@RequestHeader("uuid") String uuid, 
             @Valid @RequestBody Cliente cliente) {
-        objValidacion = validaAcceso(uuid, cliente.getIdCliente());
-        if(!objValidacion.isObjetoValido()) {
-            return objValidacion.getResponseEntity();
-        }
-        
         ResponseData rd = operacionesCliente.guardaCliente(uuid, cliente);
         return new ResponseEntity<>(rd, HttpStatus.OK);
     }
@@ -62,11 +57,6 @@ public class ClienteController {
     @PatchMapping
     public ResponseEntity<ResponseData> actualizaCliente(@RequestHeader("uuid") String uuid, 
             @RequestBody Cliente cliente) {
-        objValidacion = validaAcceso(uuid, cliente.getIdCliente());
-        if(!objValidacion.isObjetoValido()) {
-            return objValidacion.getResponseEntity();
-        }
-        
         ResponseData rd = operacionesCliente.actualizaCliente(uuid, cliente);
         return new ResponseEntity<>(rd, HttpStatus.OK);
     }
@@ -74,47 +64,12 @@ public class ClienteController {
     @DeleteMapping(path="/{idCliente}")
     public ResponseEntity<ResponseData> eliminaCliente(@RequestHeader("uuid") String uuid, 
             @PathVariable("idCliente") int idCliente) {
-        objValidacion = validaAcceso(uuid, idCliente);
-        if(!objValidacion.isObjetoValido()) {
-            return objValidacion.getResponseEntity();
-        }
-        
         ResponseData rd = operacionesCliente.eliminaCliente(uuid, idCliente);
-        return new ResponseEntity<>(rd, HttpStatus.OK);
-    }
-    
-    @PostMapping(path="/contrasena")
-    public ResponseEntity<ResponseData> actualizaContrasena(@RequestHeader("uuid") String uuid, 
-            @RequestBody Cliente cliente) {
-        objValidacion = validaAcceso(uuid, cliente.getIdCliente());
-        if(!objValidacion.isObjetoValido()) {
-            return objValidacion.getResponseEntity();
-        }
-        
-        ResponseData rd = operacionesCliente.guardaContrasenaCliente(uuid, cliente.getIdCliente(), 
-                cliente.getContrasena());
-        return new ResponseEntity<>(rd, HttpStatus.OK);
-    }
-    
-    @PostMapping(path="/certificado")
-    public ResponseEntity<ResponseData> actualizaCertificado(@RequestHeader("uuid") String uuid, 
-            @RequestBody Cliente cliente) {
-        objValidacion = validaAcceso(uuid, cliente.getIdCliente());
-        if(!objValidacion.isObjetoValido()) {
-            return objValidacion.getResponseEntity();
-        }
-
-        ResponseData rd = new ResponseData();
         return new ResponseEntity<>(rd, HttpStatus.OK);
     }
     
     @GetMapping(path="/{idCliente}")
     public ResponseEntity<Cliente> cargaCliente(@RequestHeader("uuid") String uuid, @PathVariable long idCliente) {
-                objValidacion = validaAcceso(uuid, idCliente);
-        if(!objValidacion.isObjetoValido()) {
-            return new ResponseEntity<>(new Cliente(), HttpStatus.FORBIDDEN);
-        }
-        
         try {
             Cliente c = operacionesCliente.getCliente(idCliente);
             return new ResponseEntity<>(c, HttpStatus.OK);    
@@ -131,26 +86,32 @@ public class ClienteController {
                 filtroCliente.getApMaterno());
         return new ResponseEntity<>(clientes, HttpStatus.OK);
     }
-
-    private ObjetoValidacion validaAcceso(String uuid, long idCliente) {
-        ResponseData rd = autorizaOperacion.puedeAcceder(uuid, idCliente);
-        ObjetoValidacion objValidacion = new ObjetoValidacion();
-        objValidacion.setObjetoValido(rd.isOpValida());
-        if(!rd.isOpValida()) {
-            ResponseEntity respuestaNegativa = new ResponseEntity<>(rd, HttpStatus.FORBIDDEN);
-            objValidacion.setResponseEntity(respuestaNegativa);
-        }
-        return objValidacion;
+    
+    @GetMapping(path="/simplificado") 
+    public ResponseEntity<Object> cargaListaClientesSimplificado(@RequestHeader("uuid") String uuid) {
+        Object clientes = operacionesCliente.getClientesSimplificado(uuid);
+        return new ResponseEntity<>(clientes, HttpStatus.OK);
     }
+
+//    private ObjetoValidacion validaAcceso(String uuid, long idCliente) {
+//        ResponseData rd = autorizaOperacion.puedeAcceder(uuid, idCliente);
+//        ObjetoValidacion objValidacion = new ObjetoValidacion();
+//        objValidacion.setObjetoValido(rd.isOpValida());
+//        if(!rd.isOpValida()) {
+//            ResponseEntity respuestaNegativa = new ResponseEntity<>(rd, HttpStatus.FORBIDDEN);
+//            objValidacion.setResponseEntity(respuestaNegativa);
+//        }
+//        return objValidacion;
+//    }
  }
 
- //Solamente para pasar información más rápido entre los métodos
- 
-    @Data
-    @NoArgsConstructor
-    class ObjetoValidacion { 
-        private boolean objetoValido;
-        private ResponseEntity<ResponseData> responseEntity;
-    }
+// //Solamente para pasar información más rápido entre los métodos
+// 
+//    @Data
+//    @NoArgsConstructor
+//    class ObjetoValidacion { 
+//        private boolean objetoValido;
+//        private ResponseEntity<ResponseData> responseEntity;
+//    }
 
 

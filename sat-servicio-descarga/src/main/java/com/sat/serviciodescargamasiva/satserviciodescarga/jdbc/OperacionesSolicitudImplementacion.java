@@ -11,11 +11,13 @@ import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.simple.SimpleJdbcCall;
+import org.springframework.stereotype.Repository;
 
 /**
  *
  * @author IvanGarMo
  */
+@Repository
 public class OperacionesSolicitudImplementacion implements OperacionesSolicitud {
     @Autowired
     private JdbcTemplate jdbc;

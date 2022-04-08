@@ -19,7 +19,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-
+import lombok.extern.slf4j.Slf4j;
 /**
  *
  * @author IvanGarMo
@@ -27,6 +27,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping(path="/suscripciones", produces="application/json")
 @CrossOrigin(origins="*")
+@Slf4j
 public class SuscripcionController {
     @Autowired
     private SuscripcionJpa jpa;
@@ -35,6 +36,7 @@ public class SuscripcionController {
     
     @GetMapping
     public ResponseEntity<Iterable<Suscripcion>> getSuscripciones() {
+        log.info("Hola desde suscricpiones");
         Iterable<Suscripcion> sus = jpa.findAll();
         return new ResponseEntity<>(sus, HttpStatus.OK);
     }

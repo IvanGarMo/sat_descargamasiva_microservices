@@ -36,18 +36,20 @@ public class VerifyRequestImplementation implements VerifyRequest {
 
     @Override
     public ResultadoVerificacion verifyRequest(String token, String idRequest) {
-        String cadRespuesta = this.verifyRequest.send(token);
+        //String cadRespuesta = this.verifyRequest.send(token);
+        String cadRespuesta = "";
         return this.verifyRequest.getResult(cadRespuesta);
     }
     
     @Override
-    ResultadoVerificacion doVerify(X509Certificate certificate, PrivateKey privateKey, String idRequest, 
+    public ResultadoVerificacion doVerify(X509Certificate certificate, PrivateKey privateKey, String idRequest, 
             String rfcSolicitante, String token)
             throws NoSuchAlgorithmException, SignatureException, InvalidKeyException, CertificateEncodingException {
-        this.verifyRequest.generate(certificate, privateKey, idRequest, rfcSolicitante);
-        this.verifyRequest.send(token);
-        ResultadoVerificacion resultadoVerificacion = this.verifyRequest.getResult(idRequest);
-        return resultadoVerificacion;
+//        this.verifyRequest.generate(certificate, privateKey, idRequest, rfcSolicitante);
+//        this.verifyRequest.send(token);
+//        ResultadoVerificacion resultadoVerificacion = this.verifyRequest.getResult(idRequest);
+//        return resultadoVerificacion;
+    return new ResultadoVerificacion();
     }
     
 }
@@ -71,7 +73,8 @@ class VerifierRequest extends RequestBase {
             if (nl != null && nl.getLength() > 0) {
                 int stateRequest = Integer.parseInt(nl.item(0).getAttributes().getNamedItem("EstadoSolicitud")
                         .getTextContent());
-                String mensaje = desc.consultaEstatusCodigo(stateRequest).getMensaje();
+                //String mensaje = desc.consultaEstatusCodigo(stateRequest).getMensaje();
+                String mensaje = "";
                 rv.setOperacionCorrecta(true);
                 rv.setMensaje(mensaje);
             }

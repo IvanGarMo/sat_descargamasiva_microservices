@@ -1,4 +1,5 @@
 /sat-clientes/target/
+/sat-clientes/src/main/resources/descargamasivasat-1db51d58737e.json
 /sat-config-server/target/
 /sat-eureka/target/
 /sat-servicio-descarga/target/

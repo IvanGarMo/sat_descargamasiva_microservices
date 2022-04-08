@@ -1,7 +1,68 @@
 USE SatDescargaMasiva;
 ;
 DELIMITER //
-CREATE PROCEDURE SalvaUsuario(
+USE satdescargamasiva;
+;
+DELIMITER //
+CREATE PROCEDURE guardaUsuarioRegistrado(
+	IN _uidUserFirebase VARCHAR(100),
+    IN _idMedio INT
+)
+	BEGIN
+    IF NOT EXISTS(SELECT 1 FROM Usuario WHERE uidUserFirebase=_uidUserFirebase)
+    THEN
+		IF(_idMedio = 1) #Solo con correo electrónico se pide que verifiquen el correo
+        THEN INSERT INTO Usuario(uidUserFirebase, MedioAutenticacion, activo, correoVerificado)
+			VALUES(_uidUserFirebase, _idMedio, 0, 0);
+        ELSE 
+			INSERT INTO Usuario(uidUserFirebase, MedioAutenticacion, activo, correoVerificado) 
+				VALUES(_uidUserFirebase, _idMedio, 0, 1);
+        END IF;
+    END IF;
+    END //
+DELIMITER ;
+;
+DELIMITER //
+CREATE PROCEDURE existeUsuario(
+	IN _UidUserFirebase VARCHAR(100),
+    OUT _Existe BIT
+)
+BEGIN
+	IF EXISTS(SELECT 1 FROM Usuario WHERE uidUserFirebase=_UidUserFirebase)
+    THEN SELECT 1 INTO _Existe;
+    ELSE SELECT 0 INTO _Existe;
+    END IF;
+END //
+DELIMITER ;
+;
+DELIMITER //
+CREATE PROCEDURE estaUsuarioActivo(
+	IN _uidUserFirebase VARCHAR(100),
+    OUT _idUsuario BIGINT,
+    OUT _activo BIT,
+    OUT _medioAutenticacion INT,
+    OUT _correoVerificado BIT
+)
+	BEGIN
+		SELECT activo, MedioAutenticacion, correoVerificado, idUsuario 
+        FROM Usuario
+        WHERE uidUserFirebase=_uidUserFirebase
+        INTO _activo, _medioAutenticacion, _correoVerificado, _idUsuario;
+    END//
+DELIMITER ;
+;
+DELIMITER //
+CREATE PROCEDURE registraCorreoActivado(
+	IN _UidUserFirebase VARCHAR(100),
+    IN _CorreoActivado BIT
+)
+	BEGIN
+		UPDATE Usuario SET correoVerificado=_CorreoActivado WHERE uidUserFirebase=_UidUserFirebase;
+	END//
+DELIMITER ;
+;
+DELIMITER //
+CREATE PROCEDURE TerminaRegistro(
 	IN _UidUserFirebase VARCHAR(100),
     IN _Nombre VARCHAR(100),
     IN _ApPaterno VARCHAR(100),
@@ -9,17 +70,18 @@ CREATE PROCEDURE SalvaUsuario(
     IN _Correo VARCHAR(100),
     IN _IdSuscripcion INT,
     IN _Organizacion VARCHAR(100),
-    IN _Activo BIT,
     OUT _OpValida BIT,
     OUT _Mensaje VARCHAR(255)
 )
 	BEGIN
     IF EXISTS(SELECT 1 FROM Usuario WHERE uidUserFirebase=_UidUserFirebase)
-    THEN SELECT 0, 'El usuario ya existe' INTO _OpValida, _Mensaje;
+    THEN 
+		UPDATE Usuario SET nombre=_nombre, apPaterno=_ApPaterno, apMaterno=_ApMaterno, correo=_Correo, 
+        organizacion=_Organizacion, activo=1, FechaHoraRegistro=NOW(), idSuscripcion=_IdSuscripcion
+        WHERE uidUserFirebase=_UidUserFirebase;
+        SELECT 1, 'Datos del usuario guardados exitosamente. Se le redirigirá en un momento' INTO _OpValida, _Mensaje;
     ELSE 
-		INSERT INTO Usuario(uidUserFirebase, nombre, apPaterno, apMaterno, correo, idSuscripcion, organizacion, activo)
-		VALUES (_UidUserFirebase, _Nombre, _ApPaterno, _ApMaterno, _Correo, _IdSuscripcion, _Organizacion, _Activo);
-		SELECT 1, 'Usuario registrado exitosamente' INTO _OpValida, _Mensaje;
+		SELECT 0, 'Se intentó activar un usuario inexistente' INTO _OpValida, _Mensaje;
     END IF;
     END //
 DELIMITER ;

@@ -55,8 +55,15 @@ public class Usuario {
     @NotNull(message="Debe indicar si el usuario está activo o no")
     private boolean activo;
     
+    private boolean correoConfirmado;
+    private int idMedio;
+    
     public boolean getActivo() {
         return activo;
+    }
+    
+    public boolean getCorreoConfirmado() {
+        return correoConfirmado;
     }
     
     @Override

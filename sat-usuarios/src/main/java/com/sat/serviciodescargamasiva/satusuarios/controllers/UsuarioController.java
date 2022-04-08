@@ -25,7 +25,7 @@ import org.springframework.web.bind.annotation.RestController;
  */
 @RestController
 @RequestMapping(path="/usuarios", produces="application/json")
-@CrossOrigin(origins="*")
+//@CrossOrigin
 public class UsuarioController {
     @Autowired
     private OperacionesUsuario opUsuario;

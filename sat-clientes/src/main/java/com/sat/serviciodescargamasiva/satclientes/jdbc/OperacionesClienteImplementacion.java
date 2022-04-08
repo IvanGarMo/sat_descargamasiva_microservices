@@ -92,22 +92,6 @@ public class OperacionesClienteImplementacion implements OperacionesCliente {
     }
 
     @Override
-    public ResponseData guardaContrasenaCliente(String uidUsuario, long idCliente, String contrasena) {
-        SimpleJdbcCall jdbcCall = new SimpleJdbcCall(jdbc).withProcedureName("actualizaContrasena");
-        
-        Map<String, Object> inParam = new HashMap<>();
-        inParam.put("_UidUserFirebase", uidUsuario);
-        inParam.put("_IdCliente", idCliente);
-        inParam.put("_Contrasena", contrasena);
-        
-         Map<String, Object> out = jdbcCall.execute(inParam);
-         ResponseData rd = new ResponseData();
-         rd.setOpValida((boolean) out.get("_opvalida"));
-         rd.setMensaje(out.get("_mensaje").toString());
-         return rd;
-    }
-
-    @Override
     public Cliente getCliente(long idCliente) {
          SimpleJdbcCall jdbcCall = new SimpleJdbcCall(jdbc).withProcedureName("getCliente");
          
@@ -147,35 +131,14 @@ public class OperacionesClienteImplementacion implements OperacionesCliente {
     }
 
     @Override
-    public ResponseData guardaCertificadoBaseDatos(String uuid, long idCliente, byte[] certificado) {
-        SimpleJdbcCall jdbcCall = new SimpleJdbcCall(jdbc).withProcedureName("actualizaCertificadoBlob");
-        
-        Map<String, Object> inParam = new HashMap<>();
-        inParam.put("_UidUserFirebase", uuid);
-        inParam.put("_IdCliente", idCliente);
-        inParam.put("_Certificado", certificado);
-        
-         Map<String, Object> out = jdbcCall.execute(inParam);
-         ResponseData rd = new ResponseData();
-         rd.setOpValida((boolean) out.get("_opvalida"));
-         rd.setMensaje(out.get("_mensaje").toString());
-         return rd;
-    }
-
-    @Override
-    public ResponseData guardaCertificadoBlob(String uuid, long idCliente, String urlBlob) {
-        SimpleJdbcCall jdbcCall = new SimpleJdbcCall(jdbc).withProcedureName("actualizaCertificadoNube");
-        
-        Map<String, Object> inParam = new HashMap<>();
-        inParam.put("_UidUserFirebase", uuid);
-        inParam.put("_IdCliente", idCliente);
-        inParam.put("_Url", urlBlob);
-        
-         Map<String, Object> out = jdbcCall.execute(inParam);
-         ResponseData rd = new ResponseData();
-         rd.setOpValida((boolean) out.get("_opvalida"));
-         rd.setMensaje(out.get("_mensaje").toString());
-         return rd;
+    public Object getClientesSimplificado(String uuid) {
+        MyStoredProcedure mp = new MyStoredProcedure(jdbc, "getListaClientesIdNombre");
+        SqlParameter paramUid = new SqlParameter("_UidUserFirebase", Types.VARCHAR);
+        SqlParameter[] paramArray = { paramUid };
+        mp.setParameters(paramArray);
+        mp.compile();
+        Map<String, Object> storedProcResult = mp.execute(uuid);
+        return storedProcResult.get("#result-set-1");
     }
 }
 

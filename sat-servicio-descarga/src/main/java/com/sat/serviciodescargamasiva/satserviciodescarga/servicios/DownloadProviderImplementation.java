@@ -50,7 +50,7 @@ public class DownloadProviderImplementation implements Download {
         this.download.generate(certificate, privateKey, rfc, idPaquete);
         String xml = this.download.send(token);
         result = this.download.getResult(xml);
-        return resutlt;
+        return result;
     }
 
 }

@@ -20,4 +20,10 @@ public interface OperacionesSolicitud {
     String cargaUrlPaquetes(long idDescarga);
     ResponseData guardaUrlPaquete(long idDescarga, String urlPaquete);
     void guardaEstadoSolicitud(long idDescarga, int nuevoEstado);
+    void guardaReceptorSolicitudDescarga(long idDescarga, String rfcReceptor);
+    
+    //Nuevos cambios en SAT 4.2
+    Object getComplementos();
+    Object getSolicitudDescargaEstado();
+    Object getSolicitudDescargaTipoSolicitud();
 }

@@ -110,7 +110,8 @@ CREATE PROCEDURE listaClientes(
 	BEGIN 
     SET @_IdUsuario= -1; 
     CALL ReturnIdUsuario(_UidUserFirebase, @_IdUsuario);
-    SELECT V.idCliente, V.rfc, V.nombreCliente, V.apPaternoCliente, V.apMaternoCliente, V.cuentaConContrasena, V.cuentaConCertificado
+    SELECT V.idCliente, V.rfc, V.nombreCliente, V.apPaternoCliente, V.apMaternoCliente, V.cuentaConContrasena, V.cuentaConCertificado,
+    V.cuentaConKey
     FROM VistaClienteUsuario V
     WHERE IdUsuario=@_IdUsuario
     AND (_Rfc='' OR rfc LIKE CONCAT('%', _Rfc, '%'))
@@ -362,3 +363,63 @@ DELIMITER //
     END //
 DELIMITER ;
 ;
+USE SatDescargaMasiva;
+SELECT * FROM Cliente_Key_Nube;
+DELIMITER //
+CREATE PROCEDURE guardaClienteKeyNube(
+	IN _idCliente BIGINT, 
+    IN _urlKey VARCHAR(1500),
+    OUT _opValida BIT,
+    OUT _mensaje VARCHAR(200)
+)
+	BEGIN
+		IF EXISTS(SELECT 1 FROM Cliente_Key_Nube WHERE idCliente=_idCliente) 
+        THEN 
+			UPDATE Cliente_Key_Nube SET urlKey=_urlKey, cuentaConKey=1 WHERE idCliente=_idCliente;
+            SELECT 1, 'Archivo Key guardado exitosamente' INTO _OpValida, _Mensaje;
+		ELSE 
+			INSERT INTO Cliente_Key_Nube(idCliente, cuentaConKey, urlKey) 
+				VALUES(_idCliente, 1, _urlKey);
+        END IF;
+    END//
+DELIMITER ;
+;
+DELIMITER //
+CREATE PROCEDURE cargaClienteKeyNube(
+	IN _idCliente BIGINT, 
+    OUT _urlKey VARCHAR(1500)
+)
+	BEGIN
+    SELECT urlKey FROM Cliente_Key_Nube WHERE idCliente=_idCliente INTO _urlKey;
+    END//
+DELIMITER ;
+;
+DELIMITER //
+CREATE PROCEDURE guardaClienteKeyLocal(
+	IN _idCliente BIGINT,
+    IN _fileKey BLOB,
+    OUT _OpValida BIT,
+    OUT _Mensaje VARCHAR(200)
+)
+	BEGIN
+    IF EXISTS(SELECT 1 FROM Cliente_Key_Local WHERE idCliente=_idCliente)
+    THEN 
+		UPDATE Cliente_Key_Local SET fileKey=_fileKey, cuentaConKey=1 WHERE idCliente=_idCliente;
+        SELECT 1, 'Archivo key guardado exitosamente' INTO _OpValida, _Mensaje;
+	ELSE 
+		INSERT INTO Cliente_Key_Local(idCliente, cuentaConKey, fileKey) VALUES(_idCliente, 1, _fileKey);
+        SELECT 1, 'Archivo key guardado exitosamente' INTO _OpValida, _Mensaje;
+	END IF;
+    END //
+DELIMITER ;
+;
+DELIMITER //
+CREATE PROCEDURE cargaClienteKeyLocal(
+	IN _idCliente BIGINT, 
+    OUT _fileKey BLOB
+)
+	BEGIN
+		SELECT fileKey FROM Cliente_Key_Local WHERE idCliente=_idCliente INTO _fileKey;
+    END //
+DELIMITER ;
+SELECT * FROM Cliente_Key_Local;

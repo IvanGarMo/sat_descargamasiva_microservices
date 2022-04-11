@@ -4,6 +4,7 @@
  */
 package com.sat.serviciodescargamasiva.satserviciodescarga.data;
 
+import java.util.List;
 import lombok.Data;
 
 /**
@@ -17,10 +18,25 @@ public class Solicitud {
     private long idCliente;
     private String fechaInicioPeriodo;
     private String fechaFinPeriodo;
-    private String rfcEmisor;
-    private String rfcReceptor;
     private String rfcSolicitante;
-    private int estado;
+    private String rfcEmisor;
+    private List<String> rfcReceptor;
+    private String tipoComprobante;
+    private String estado;
+    private String complemento;
+    private boolean esUidSolicitado;
+    private String uid;
     private int noFacturas;
     private int descargasPermitidas;
+    
+    @Override
+    public String toString() {
+        return "[IdDescarga: "+this.idDescarga+" IdDescargaSat "+this.idDescargaSat+
+                " idCliente: "+this.idCliente+" FechaInicioPeriodo "+this.fechaInicioPeriodo+
+                " fechaFinperiodo: "+this.fechaFinPeriodo+" rfcEmisor "+this.rfcEmisor+
+                " rfcReceptor "+this.rfcReceptor+" rfcSolicitante "+this.rfcSolicitante+
+                " Estado: "+this.estado+" noFacturas "+noFacturas+
+                " DescargasPermitidas "+this.descargasPermitidas+
+                "]";
+    }
 }

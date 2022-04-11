@@ -1,3 +1,35 @@
+######################################
+DELIMITER //
+CREATE PROCEDURE getSolicitudDescargaComplemento()
+	BEGIN
+		SELECT valor, descripcion FROM solicitud_descarga_complemento;
+    END //
+DELIMITER ;
+;
+DELIMITER //
+CREATE PROCEDURE getSolicitudDescargaEstadoComprobante()
+	BEGIN
+		SELECT valor, descripcion FROM solicitud_descarga_estado_comprobante;
+    END //
+DELIMITER ;
+;
+DELIMITER //
+CREATE PROCEDURE getSolicitudDescargaTipoSolicitud()
+	BEGIN
+		SELECT valor, descripcion FROM solicitud_descarga_tipo_solicitud;
+    END //
+DELIMITER ;
+;
+DELIMITER //
+CREATE PROCEDURE guardaRfcReceptorSolicitud(
+	IN _idDescarga BIGINT, 
+    IN _rfcReceptor VARCHAR(13)
+)
+	BEGIN
+		INSERT INTO solicitud_descarga_rfc_receptor(rfcRecceptor, idDescarga) VALUES(_rfcReceptor, _idDescarga);
+    END //
+DELIMITER ;
+;
 DELIMITER //
 CREATE PROCEDURE TieneAccesoCliente(
 	IN _IdCliente INT,
@@ -35,26 +67,30 @@ DELIMITER ;
 DELIMITER //
 CREATE PROCEDURE ListaSolicitudes(
 	IN _uidUserFirebase VARCHAR(200),
-    IN _rfcEmisor VARCHAR(13),
-    IN _rfcReceptor VARCHAR(13),
+    IN _rfcSolicitante VARCHAR(13),
     IN _fechaInicioPeriodo DATE, 
     IN _fechaFinPeriodo DATE, 
-    IN _estado INT
+    IN _estadoSolicitud INT, 
+    IN _idComplemento INT, 
+    IN _estadoComprobante INT, 
+    IN _tipoSolicitud VARCHAR(2), 
+    IN _uid VARCHAR(100)
 )
 	BEGIN
 		SET @_IdUsuario = -1;
         CALL ReturnIdUsuario(_uidUserFirebase, @_IdUsuario);
-		SELECT idDescarga, rfcEmisor, rfcReceptor, fechaInicioPeriodo, fechaFinPeriodo, 
-        descripcionEstado, IFNULL(noFacturas, 'Información no disponible') AS noFacturas
+		SELECT idDescarga, rfcSolicitante, fechaInicioPeriodo, fechaFinPeriodo, nombreCliente,
+        descripcionEstado, IFNULL(noFacturas, 'Información no disponible') AS noFacturas,
+        complemento, estadoComprobante, tipoSolicitud
         FROM VistaGeneralSolicitud
         WHERE idUsuario=@_IdUsuario
-        AND (_rfcEmisor='' 
-			OR (rfcEmisor<>'' AND rfcEmisor LIKE CONCAT('%', _rfcEmisor, '%')))
-        AND (_rfcReceptor='' 
-			OR (rfcReceptor<>'' AND rfcReceptor LIKE CONCAT('%', _rfcReceptor, '%')))
         AND (_fechaInicioPeriodo='1000-01-01' OR (_fechaInicioPeriodo<>'1000-01-01' AND fechaInicioPeriodo>=_fechaInicioPeriodo))
         AND (_fechaFinPeriodo='1000-01-01' OR (_fechaFinPeriodo<>'1000-01-01' AND fechaFinPeriodo<=_fechaFinPeriodo))
-        AND (_estado=-1 OR (_estado<>-1 AND idEstado=_estado));
+        AND (_estado=-1 OR (_estado<>-1 AND idEstado=_estado))
+        AND (_rfcSolicitante='' OR (_rfcSolicitante<>'' AND rfcSolicitante LIKE CONCAT('%', _rfcSolicitante,'%')))
+        AND (_valor=-1 OR (_valor<>-1 AND estadoComprobante=_valor))
+        AND (_tipoSolicitud=-1 OR (_tipoSolicitud<>-1 AND tipoSolicitud=_tipoSolicitud))
+        AND (_uid='' OR (_uid<>'' AND esUidSolicitado=1 AND uid_uid));
     END //
 DELIMITER ;
 ;
@@ -143,10 +179,11 @@ CREATE PROCEDURE PuedeHacerSolicitud(
 		SET @_IdDescarga = -1;
 		SELECT idDescarga FROM SolicitudDescarga WHERE rfcEmisor=_rfcEmisor AND rfcReceptor=_rfcReceptor
 		AND fechaInicioPeriodo=_fechaInicioPeriodo AND fechaFinPeriodo=_fechaFinPeriodo INTO @_IdDescarga;
-        CALL getTexto(@_IdDescarga, _Mensaje);
-        SELECT 0 INTO _OpValida;
+        SET @_MensajeVar = "";
+        CALL getTexto(@_IdDescarga, @_MensajeVar);
+        SELECT 0, @_MensajeVar INTO _OpValida, _Mensaje;
 	ELSE 
-		SELECT 1 INTO _OpValida;
+		SELECT 1, '' INTO _OpValida, _Mensaje;
 	END IF;
     END //
 DELIMITER ;

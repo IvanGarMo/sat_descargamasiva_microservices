@@ -27,9 +27,10 @@ import org.springframework.web.multipart.MultipartFile;
 public class GoogleStorageClientAdapter {
     @Autowired
     private Storage storage;
-    private String bucketName = "certificados_sat";
+    public String BUCKET_CERTIFICADO = "certificados_sat";
+    public String BUCKET_KEY = "key_sat";
     
-    public boolean upload(MultipartFile file, String fileName) throws IOException {
+    public boolean upload(MultipartFile file, String fileName, String bucketName) throws IOException {
         StorageObject storageObject = new StorageObject();
         storageObject.setName(fileName);
         InputStream targetStream = new ByteArrayInputStream(file.getBytes());
@@ -53,7 +54,7 @@ public class GoogleStorageClientAdapter {
         return true;
     }
     
-    public StorageObject download(String fileName) throws IOException {
+    public StorageObject download(String fileName, String bucketName) throws IOException {
         StorageObject storageObject = storage.objects().get(bucketName, fileName).execute();
         File file = new File("./"+fileName);
         FileOutputStream os = new FileOutputStream(file);

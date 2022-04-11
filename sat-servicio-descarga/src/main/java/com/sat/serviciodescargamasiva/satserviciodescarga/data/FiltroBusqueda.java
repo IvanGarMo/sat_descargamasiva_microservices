@@ -13,9 +13,12 @@ import lombok.Data;
  */
 @Data
 public class FiltroBusqueda {
-    private String rfcEmisor;
-    private String rfcReceptor;
+    private String rfcSolicitante;
     private Date fechaInicioPeriodo;
     private Date fechaFinPeriodo;
-    private int estado;
+    private int estadoSolicitud;
+    private int idComplemento;
+    private int estadoComprobante;
+    private String tipoSolicitud;
+    private String uid;
 }

@@ -38,6 +38,9 @@ public class Cliente {
     private boolean cuentaConCertificado;
     private MultipartFile certificado;
     
+    private boolean cuentaConKey;
+    private MultipartFile key;
+    
     private boolean certificadoNube;
     private boolean certificadoBaseDatos;
 }

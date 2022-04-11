@@ -10,6 +10,9 @@ CREATE TABLE Cliente(
     certificadoBaseDatos BIT
 )
 ;
+ALTER TABLE Cliente ADD keyNube BIT DEFAULT 1;
+ALTER TABLE Cliente ADD keyBaseDatos BIT;
+;
 CREATE INDEX Rfc_Index ON Cliente(rfc);
 ;
 CREATE TABLE Cliente_Usuario (
@@ -64,6 +67,22 @@ CREATE TABLE Cliente_Certificado_Nube (
     FOREIGN KEY(idCliente) REFERENCES Cliente(idCliente)
 )
 ;
+CREATE TABLE Cliente_Key_Local(
+	idKey BIGINT PRIMARY KEY AUTO_INCREMENT, 
+    idCliente BIGINT,
+    cuentaConKey BIT,
+    fileKey BLOB,
+    FOREIGN KEY(idCliente) REFERENCES Cliente(idCliente)
+)
+;
+CREATE TABLE Cliente_Key_Nube(
+	idKey BIGINT PRIMARY KEY AUTO_INCREMENT, 
+    idCliente BIGINT, 
+    cuentaConKey BIT, 
+    urlKey VARCHAR(1500),
+    FOREIGN KEY(idCliente) REFERENCES Cliente(idCliente)
+)
+;
 CREATE TABLE Cliente_Operacion (
 	idOperacion BIGINT PRIMARY KEY AUTO_INCREMENT,
     descripcionOperacion VARCHAR(300)
@@ -84,6 +103,8 @@ CREATE TABLE Cliente_Movimiento (
     fechaHoraMovimiento TIMESTAMP
 )
 ;
+
+;
 CREATE VIEW VistaClienteUsuario AS
 	SELECT 
 		C.idCliente, C.rfc, C.nombre AS nombreCliente, C.apPaterno AS apPaternoCliente, C.apMaterno as apMaternoCliente, 
@@ -91,11 +112,16 @@ CREATE VIEW VistaClienteUsuario AS
         IFNULL(CCO.cuentaConContrasena, 0) AS cuentaConContrasena,
         CASE WHEN C.certificadoNube = 1 THEN IFNULL(CCEN.cuentaConCertificado, 0)
 			 WHEN C.certificadoBaseDatos = 1 THEN IFNULL(CCEL.cuentaConCertificado, 0)
-             END AS cuentaConCertificado
+             END AS cuentaConCertificado,
+		CASE WHEN C.keyNube = 1 THEN IFNULL(CKN.cuentaConKey, 0)
+			WHEN C.keyBaseDatos = 1 THEN IFNULL(CKL.cuentaConKey, 0)
+            END AS cuentaConKey
     FROM Cliente C 
     JOIN Cliente_Usuario UC ON C.idCliente=UC.idCliente
     JOIN Usuario U ON UC.idUsuario=U.idUsuario
     LEFT JOIN Cliente_Contrasena CCO ON C.idCliente=CCO.idCliente
     LEFT JOIN Cliente_Certificado_Local CCEL ON C.idCliente=CCEL.idCliente
     LEFT JOIN Cliente_Certificado_Nube CCEN ON C.idCliente=CCEN.idCliente
+    LEFT JOIN Cliente_Key_Nube CKN ON C.idCliente=CKN.idCliente
+    LEFT JOIN Cliente_Key_Local CKL ON C.idCliente=CKL.idCliente
 ;

@@ -10,6 +10,7 @@ import com.sat.serviciodescargamasiva.satserviciodescarga.data.Solicitud;
 import java.io.ByteArrayInputStream;
 import java.util.HashMap;
 import java.util.Map;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.simple.SimpleJdbcCall;
@@ -20,6 +21,7 @@ import org.springframework.stereotype.Repository;
  * @author IvanGarMo
  */
 @Repository
+@Slf4j
 public class OperacionesAutorizacionImplementacion implements OperacionesAutorizacion {
     @Autowired
     private JdbcTemplate jdbcTemplate;
@@ -85,7 +87,7 @@ public class OperacionesAutorizacionImplementacion implements OperacionesAutoriz
         inParam.put("_fechaFinPeriodo", solicitud.getFechaFinPeriodo());
         inParam.put("_rfcEmisor", solicitud.getRfcEmisor());
         inParam.put("_rfcReceptor", solicitud.getRfcReceptor());
-        
+        log.info(solicitud.toString());
         Map<String, Object> outParam = jdbc.execute(inParam);
         ResponseData rd = new ResponseData();
         rd.setOpValida((boolean) outParam.get("_opvalida"));

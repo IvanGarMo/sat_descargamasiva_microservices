@@ -50,7 +50,7 @@ public class OperacionesCertificadoImplementacion implements OperacionesCertific
         throws IOException {
         
         String nombreCertificadoBlob = generaNombreCertificado(cliente);
-        adapter.upload(cliente.getCertificado(), nombreCertificadoBlob);
+        adapter.upload(cliente.getCertificado(), nombreCertificadoBlob, adapter.BUCKET_CERTIFICADO);
         
         SimpleJdbcCall jdbcCall = new SimpleJdbcCall(jdbc).withProcedureName("actualizaCertificadoNube");
         
@@ -68,11 +68,7 @@ public class OperacionesCertificadoImplementacion implements OperacionesCertific
 
     @Override
     public String generaNombreCertificado(Cliente cliente) {
-        String FORMATO_CERTIFICADO = "Certificado_{0}_{1}{2}.pfx";
-        log.info("generaNombreCertificado: "+cliente.getRfc());
-        log.info("generaNombreCertificado: "+cliente.getApMaterno());
-        log.info("generaNombreCertificado: "+cliente.getApMaterno());
-        log.info(String.format(FORMATO_CERTIFICADO, cliente.getRfc(), cliente.getApPaterno(), cliente.getApMaterno()));
-        return String.format(FORMATO_CERTIFICADO, cliente.getRfc(), cliente.getApPaterno(), cliente.getApMaterno());
+        String FORMATO_CERTIFICADO = "Certificado_"+cliente.getRfc()+"_"+cliente.getApPaterno()+cliente.getApMaterno()+".cer";
+        return FORMATO_CERTIFICADO;
     }
 }

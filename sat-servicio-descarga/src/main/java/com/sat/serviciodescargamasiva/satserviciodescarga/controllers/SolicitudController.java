@@ -7,6 +7,7 @@ package com.sat.serviciodescargamasiva.satserviciodescarga.controllers;
 import com.sat.serviciodescargamasiva.satserviciodescarga.data.ContrasenaCertificado;
 import com.sat.serviciodescargamasiva.satserviciodescarga.data.ResponseData;
 import com.sat.serviciodescargamasiva.satserviciodescarga.data.Solicitud;
+import com.sat.serviciodescargamasiva.satserviciodescarga.data.SolicitudDetalle;
 import com.sat.serviciodescargamasiva.satserviciodescarga.jdbc.OperacionesAutorizacion;
 import com.sat.serviciodescargamasiva.satserviciodescarga.jdbc.OperacionesSolicitud;
 import com.sat.serviciodescargamasiva.satserviciodescarga.servicios.AuthenticationProvider;
@@ -37,6 +38,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import com.sat.serviciodescargamasiva.satserviciodescarga.jdbc.OperacionesValidacionSolicitud;
 
 /**
  *
@@ -53,12 +55,14 @@ public class SolicitudController {
     private OperacionesSolicitud solicitudRepo;
     @Autowired
     private OperacionesAutorizacion authRepo;
+    @Autowired
+    private OperacionesValidacionSolicitud validacionService;
     
     @GetMapping(path="/{idSolicitud}")
-    public ResponseEntity<Solicitud> getSolicitud(@PathVariable("idSolicitud") long idSolicitud, 
+    public ResponseEntity<SolicitudDetalle> getSolicitud(@PathVariable("idSolicitud") long idSolicitud, 
             @RequestHeader("uuid") String uuid) {
         if(authRepo.tieneAccesoSolicitud(idSolicitud, uuid)) {
-            Solicitud solicitud = solicitudRepo.cargaDetalleSolicitud(idSolicitud);
+            SolicitudDetalle solicitud = solicitudRepo.cargaDetalleSolicitud(idSolicitud);
             return new ResponseEntity<>(solicitud, HttpStatus.OK);
         }
         return new ResponseEntity<>(null, HttpStatus.FORBIDDEN);
@@ -72,7 +76,7 @@ public class SolicitudController {
         Resultado resultadoOperacion;
         
         //Primero, es necesario validar que el usuario tenga acceso al cliente
-        if(authRepo.tieneAccesoCliente(solicitud.getIdCliente(), uuid)) {
+        if(!authRepo.tieneAccesoCliente(solicitud.getIdCliente(), uuid)) {
             return new ResponseEntity<>(null, HttpStatus.FORBIDDEN);
         }
         
@@ -100,7 +104,8 @@ public class SolicitudController {
         }
         
         //Obtengo el certificado y la llave del cliente
-        ContrasenaCertificado contCert = authRepo.cargaDatosAutenticacion(solicitud.getIdCliente());
+        //ContrasenaCertificado contCert = authRepo.cargaDatosAutenticacion(solicitud.getIdCliente());
+        ContrasenaCertificado contCert = new ContrasenaCertificado();
         InputStream inputStream = new ByteArrayInputStream(contCert.getCertificado());
         char[] passwordPFX = contCert.getContrasena().toCharArray();
         
@@ -129,15 +134,15 @@ public class SolicitudController {
         
         //Realizo la comunicación con el SAT
         try {
-            resultadoOperacion = solicitudConnector.doRequest(certificate, 
-                        privateKey, 
-                        solicitud.getRfcSolicitante(),
-                        solicitud.getRfcEmisor(),
-                        solicitud.getRfcReceptor(),
-                        solicitud.getFechaInicioPeriodo(),
-                        solicitud.getFechaFinPeriodo(),
-                        TipoSolicitud.CFDI
-                        );
+            //resultadoOperacion = solicitudConnector.doRequest(certificate, 
+            //            privateKey, 
+            //            solicitud.getRfcSolicitante(),
+            //            solicitud.getRfcEmisor(),
+            //            solicitud.getRfcReceptor(),
+            //            solicitud.getFechaInicioPeriodo(),
+            //            solicitud.getFechaFinPeriodo(),
+            //            TipoSolicitud.CFDI
+            //            );
         } catch(Exception ex) {
             
         }
@@ -145,27 +150,14 @@ public class SolicitudController {
         //Guardo resultado en la base de datos
         ResponseData rd = solicitudRepo.guardaSolicitud(solicitud);
         resultadoOperacion.setMensaje(rd.getMensaje());
-        resultadoOperacion.setOperacionCorrecta(rd.isActivo());
+        resultadoOperacion.setOperacionCorrecta(rd.isOpValida());
         return new ResponseEntity<>(resultadoOperacion, HttpStatus.OK);
-    }
-    
-    
-    private Resultado validar(Solicitud solicitud) throws NoSuchAlgorithmException, SignatureException, 
-            InvalidKeyException, CertificateEncodingException {
-        return solicitudConnector.validate(
-                solicitud.getRfcSolicitante(),
-                solicitud.getRfcEmisor(),
-                solicitud.getRfcReceptor(),
-                solicitud.getFechaInicioPeriodo(),
-                solicitud.getFechaFinPeriodo(),
-                TipoSolicitud.CFDI
-        );
     }
     
     private Resultado tieneCertificado(Solicitud solicitud) {
         ResponseData rd = authRepo.tieneCertificado(solicitud.getIdCliente());
         Resultado res = new Resultado();
-        res.setOperacionCorrecta(rd.isActivo());
+        res.setOperacionCorrecta(rd.isOpValida());
         res.setMensaje(rd.getMensaje());
         return res;
     }
@@ -173,7 +165,7 @@ public class SolicitudController {
     private Resultado tieneContrasena(Solicitud solicitud) {
         ResponseData rd = authRepo.tieneContrasena(solicitud.getIdCliente());
         Resultado res = new Resultado();
-        res.setOperacionCorrecta(rd.isActivo());
+        res.setOperacionCorrecta(rd.isOpValida());
         res.setMensaje(rd.getMensaje());
         return res;
     }
@@ -181,7 +173,7 @@ public class SolicitudController {
     private Resultado existeSolicitud(Solicitud solicitud) {
         ResponseData rd = authRepo.existeSolicitud(solicitud);
         Resultado res = new Resultado();
-        res.setOperacionCorrecta(rd.isActivo());
+        res.setOperacionCorrecta(rd.isOpValida());
         res.setMensaje(rd.getMensaje());
         return res;
     }

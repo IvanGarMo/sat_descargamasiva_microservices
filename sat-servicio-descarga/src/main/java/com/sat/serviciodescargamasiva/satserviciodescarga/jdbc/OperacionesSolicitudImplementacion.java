@@ -27,28 +27,34 @@ import org.springframework.stereotype.Repository;
 public class OperacionesSolicitudImplementacion implements OperacionesSolicitud {
     @Autowired
     private JdbcTemplate jdbcTemplate;
-
+   
     @Override
     public Object listaSolicitudes(String uuid, FiltroBusqueda filtro) {
         MyStoredProcedure mp = new MyStoredProcedure(jdbcTemplate, "ListaSolicitudes");
         SqlParameter paramUid = new SqlParameter("_uidUserFirebase", Types.VARCHAR);
-        SqlParameter rfcEmisor = new SqlParameter("_rfcEmisor", Types.VARCHAR);
-        SqlParameter rfcReceptor = new SqlParameter("_rfcReceptor", Types.VARCHAR);
+        SqlParameter rfcEmisor = new SqlParameter("_rfcSolicitante", Types.VARCHAR);
         SqlParameter fechaInicioPeriodo = new SqlParameter("_fechaInicioPeriodo", Types.DATE);
         SqlParameter fechaFinPeriodo = new SqlParameter("_fechaFinPeriodo", Types.DATE);
-        SqlParameter estado = new SqlParameter("_estado", Types.INTEGER);
-        SqlParameter[] paramArray =  { paramUid, rfcEmisor, rfcReceptor, fechaInicioPeriodo, 
-            fechaFinPeriodo, estado};
+        SqlParameter estado = new SqlParameter("_estadoSolicitud", Types.INTEGER);
+        SqlParameter idComplemento = new SqlParameter("_idComplemento", Types.INTEGER);
+        SqlParameter estadoComprobante = new SqlParameter("_estadoComprobante", Types.INTEGER);
+        SqlParameter tipoSolicitud = new SqlParameter("_tipoSolicitud", Types.VARCHAR);
+        SqlParameter uid = new SqlParameter("_uid", Types.VARCHAR);
+        SqlParameter[] paramArray =  { paramUid, rfcEmisor, fechaInicioPeriodo, fechaFinPeriodo, 
+        estado, idComplemento, estadoComprobante, tipoSolicitud, uid };
         mp.setParameters(paramArray);
         mp.compile();
         
         Map<String, Object> inParams = new HashMap<>();
         inParams.put("_uidUserFirebase", uuid);
-        inParams.put("_rfcEmisor", filtro.getRfcEmisor());
-        inParams.put("_rfcReceptor", filtro.getRfcReceptor());
+        inParams.put("_rfcSolicitante", filtro.getRfcSolicitante());
         inParams.put("_fechaInicioPeriodo", filtro.getFechaInicioPeriodo());
         inParams.put("_fechaFinPeriodo", filtro.getFechaFinPeriodo());
-        inParams.put("_estado", filtro.getEstado());
+        inParams.put("_estadoSolicitud", filtro.getEstadoSolicitud());
+        inParams.put("_idComplemento", filtro.getIdComplemento());
+        inParams.put("_estadoComprobante", filtro.getEstadoComprobante());
+        inParams.put("_tipoSolicitud", filtro.getTipoSolicitud());
+        inParams.put("_uid", filtro.getUid());
         
         Map<String, Object> out = mp.execute(inParams);
         return out.get("#result-set-1");
@@ -138,6 +144,45 @@ public class OperacionesSolicitudImplementacion implements OperacionesSolicitud 
         Map<String, Object> inParam = new HashMap<>();
         inParam.put("_idDescarga", idDescarga);
         inParam.put("_nuevoEstado", nuevoEstado);
+        jdbc.execute(inParam);
+    }
+
+    @Override
+    public Object getComplementos() {
+        MyStoredProcedure mp = new MyStoredProcedure(jdbcTemplate, "getSolicitudDescargaComplemento");
+        mp.compile();
+        
+        Map<String, Object> inParams = new HashMap<>();
+        Map<String, Object> out = mp.execute(inParams);
+        return out.get("#result-set-1");
+    }
+
+    @Override
+    public Object getSolicitudDescargaEstado() {
+        MyStoredProcedure mp = new MyStoredProcedure(jdbcTemplate, "getSolicitudDescargaEstadoComprobante");
+        mp.compile();
+        
+        Map<String, Object> inParams = new HashMap<>();
+        Map<String, Object> out = mp.execute(inParams);
+        return out.get("#result-set-1");
+    }
+
+    @Override
+    public Object getSolicitudDescargaTipoSolicitud() {
+        MyStoredProcedure mp = new MyStoredProcedure(jdbcTemplate, "getSolicitudDescargaTipoSolicitud");
+        mp.compile();
+        
+        Map<String, Object> inParams = new HashMap<>();
+        Map<String, Object> out = mp.execute(inParams);
+        return out.get("#result-set-1");
+    }
+
+    @Override
+    public void guardaReceptorSolicitudDescarga(long idDescarga, String rfcReceptor) {
+        SimpleJdbcCall jdbc = new SimpleJdbcCall(jdbcTemplate).withProcedureName("guardaRfcReceptorSolicitud");
+        Map<String, Object> inParam = new HashMap<>();
+        inParam.put("_idDescarga", idDescarga);
+        inParam.put("_rfcReceptor", rfcReceptor);
         jdbc.execute(inParam);
     }
 }

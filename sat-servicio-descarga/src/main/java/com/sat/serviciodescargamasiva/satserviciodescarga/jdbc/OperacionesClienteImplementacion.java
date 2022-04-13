@@ -36,6 +36,7 @@ public class OperacionesClienteImplementacion implements OperacionesCliente {
         cliente.setApMaterno(outParam.get("_apmaterno").toString());
         cliente.setCuentaConContrasena((boolean) outParam.get("_cuentaconcontrasena"));
         cliente.setCuentaConCertificado((boolean) outParam.get("_cuentaconcertificado"));
+        cliente.setCuentaConKey((boolean) outParam.get("_cuentaconkey"));
         return cliente;
     }
 }

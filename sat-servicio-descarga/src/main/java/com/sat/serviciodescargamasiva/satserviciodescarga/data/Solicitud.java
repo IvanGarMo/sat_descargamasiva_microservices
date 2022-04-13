@@ -4,6 +4,9 @@
  */
 package com.sat.serviciodescargamasiva.satserviciodescarga.data;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 import lombok.Data;
 
@@ -21,8 +24,9 @@ public class Solicitud {
     private String rfcSolicitante;
     private String rfcEmisor;
     private List<String> rfcReceptor;
-    private String tipoComprobante;
-    private String estado;
+    private long estadoSolicitud;
+    private String estadoComprobante;
+    private String tipoSolicitud;
     private String complemento;
     private boolean esUidSolicitado;
     private String uid;
@@ -31,12 +35,50 @@ public class Solicitud {
     
     @Override
     public String toString() {
-        return "[IdDescarga: "+this.idDescarga+" IdDescargaSat "+this.idDescargaSat+
-                " idCliente: "+this.idCliente+" FechaInicioPeriodo "+this.fechaInicioPeriodo+
-                " fechaFinperiodo: "+this.fechaFinPeriodo+" rfcEmisor "+this.rfcEmisor+
-                " rfcReceptor "+this.rfcReceptor+" rfcSolicitante "+this.rfcSolicitante+
-                " Estado: "+this.estado+" noFacturas "+noFacturas+
-                " DescargasPermitidas "+this.descargasPermitidas+
+        return "[ IdDescarga: "+this.idDescarga+" idDescargaSat "+this.idDescargaSat+
+                " idCliente: "+this.idCliente+" fechaInicioPeriodo: "+this.fechaInicioPeriodo+
+                " fechaFinPeriodo:  "+this.fechaFinPeriodo+" RfcSolicitante: "+rfcSolicitante+
+                " rfcEmisor: "+this.rfcEmisor+" estadoSolicitud: "+this.estadoSolicitud+
+                " cantidadReceptores: "+this.rfcReceptor.size()+
+                " estadoComprobante: "+this.estadoComprobante+" tipoSolicitud:  "+this.tipoSolicitud+
+                " esUidSolicitado: "+this.esUidSolicitado+
+                " complemento: "+this.complemento+" Uid: "+this.uid+
                 "]";
+    }
+    
+    public Date getFechaInicioPeriodoDate() throws ParseException {
+        SimpleDateFormat format = new SimpleDateFormat("dd-MM-yyyy");
+        return format.parse(fechaInicioPeriodo);
+    }
+    
+    public Date getFechaFinPeriodoDate() throws ParseException {
+        SimpleDateFormat format = new SimpleDateFormat("dd-MM-yyyy");
+        return format.parse(fechaInicioPeriodo);
+    }
+    
+    public boolean esIgual(Solicitud solicitud) {
+        if(!this.complemento.equals(solicitud.getComplemento())) {
+            return false;
+        }
+        
+        if(!this.estadoComprobante.equals(solicitud.getEstadoComprobante())) {
+            return false;
+        }
+        
+        if(!this.tipoSolicitud.equals(solicitud.getTipoSolicitud())) {
+            return false;
+        }
+        
+        if(this.rfcReceptor.size() != solicitud.rfcReceptor.size()) {
+            return false;
+        }
+        
+        for(String receptor : this.rfcReceptor) {
+            if(!solicitud.getRfcReceptor().contains(receptor)) {
+                return false;
+            }
+        }
+        
+        return true;
     }
 }

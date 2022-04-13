@@ -9,12 +9,15 @@ import com.sat.serviciodescargamasiva.satserviciodescarga.data.FiltroBusqueda;
 import com.sat.serviciodescargamasiva.satserviciodescarga.jdbc.OperacionesAutorizacion;
 import com.sat.serviciodescargamasiva.satserviciodescarga.jdbc.OperacionesCliente;
 import com.sat.serviciodescargamasiva.satserviciodescarga.jdbc.OperacionesSolicitud;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -25,6 +28,8 @@ import org.springframework.web.bind.annotation.RestController;
  */
 @RestController
 @RequestMapping(path="/solicitudes")
+@CrossOrigin(origins = "*")
+@Slf4j
 public class SolicitudLecturaController {
     @Autowired
     private OperacionesAutorizacion authService;
@@ -35,13 +40,15 @@ public class SolicitudLecturaController {
     
     @PostMapping(path="/lista")
     public ResponseEntity<Object> getLista(@RequestHeader("uuid") String uuid, 
-            FiltroBusqueda filtroBusqueda) {
-        try {
+            @RequestBody FiltroBusqueda filtroBusqueda) {
+        log.info("Uuid: "+uuid);
+        log.info("Filtro: "+filtroBusqueda);
+        //try {
             Object object = solicitudRepo.listaSolicitudes(uuid, filtroBusqueda);
             return new ResponseEntity<>(object, HttpStatus.OK);
-        } catch(Exception ex) {
-            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
-        }
+        //} catch(Exception ex) {
+        //    return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+        //}
     }
     
     @GetMapping(path="/estados")
@@ -58,6 +65,7 @@ public class SolicitudLecturaController {
     public ResponseEntity<Cliente> getCliente(@RequestHeader("uuid") String uuid, @PathVariable("id") long idCliente) {
         try {
             Cliente cliente = clienteRepo.getCliente(idCliente);
+            log.info("SolicitudLecturaController - GetCliente: "+cliente.toString());
             return new ResponseEntity<>(cliente, HttpStatus.OK);
         } catch(Exception ex) {
             return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);

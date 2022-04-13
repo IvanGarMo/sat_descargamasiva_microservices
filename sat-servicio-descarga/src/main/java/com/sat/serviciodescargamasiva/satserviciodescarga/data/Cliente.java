@@ -18,4 +18,12 @@ public class Cliente {
     private String apMaterno;
     private boolean cuentaConContrasena;
     private boolean cuentaConCertificado;
+    private boolean cuentaConKey;
+    
+    @Override
+    public String toString() {
+        return "[ Rfc: "+this.rfc+" Nombre: "+this.nombre+" apPaterno "+this.apPaterno+
+                " ApMaterno "+this.apMaterno+" cuentaConContrasena "+this.cuentaConContrasena+
+                " cuentaConCertificado "+this.cuentaConCertificado+" cuentaConKey "+this.cuentaConKey+"]";
+    }
 }

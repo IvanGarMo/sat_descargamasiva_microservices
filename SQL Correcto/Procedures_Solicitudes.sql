@@ -55,25 +55,51 @@ CREATE PROCEDURE cargaClienteSolicitud(
     OUT _apPaterno VARCHAR(100),
     OUT _apMaterno VARCHAR(100),
     OUT _cuentaConContrasena BIT, 
-    OUT _cuentaConCertificado BIT
+    OUT _cuentaConCertificado BIT,
+    OUT _cuentaConKey BIT
 )
 	BEGIN
-		SELECT rfc, nombre, apPaterno, apMaterno, cuentaConContrasena, cuentaConCertificado
-        FROM Cliente WHERE idCliente=_idCliente
-        INTO _rfc, _nombre, _apPaterno, _apMaterno, _cuentaConContrasena, _cuentaConCertificado;
+		SELECT rfc, nombreCliente, apPaternoCliente, apMaternoCliente, 
+        cuentaConContrasena, cuentaConCertificado, cuentaConKey
+        FROM VistaClienteUsuario WHERE idCliente=_idCliente
+        INTO _rfc, _nombre, _apPaterno, _apMaterno, _cuentaConContrasena, _cuentaConCertificado, _cuentaConKey;
     END //
 DELIMITER ;
 ;
+
+DELIMITER //
+CREATE PROCEDURE estadoListaSolicitud()
+	BEGIN
+		SELECT idEstado, descripcionEstado FROM Solicitud_Descarga_Estado_Solicitud;
+    END//
+DELIMITER ;
+;
+USE SatDescargaMasiva;
+SELECT * FROM Usuario;
+SELECT * FROM VistaGeneralSolicitud;
+CALL ListaSolicitudes('hXLtTCe2L0e0PvssJ0TVmS2SQ5o1', '', '', '', -1, -1, -1, -1,'');
+SELECT * FROM VistaGeneralSolicitud;
+DROP PROCEDURE ListaSolicitudes;
+
+SELECT * FROM Solicitud_Descarga_Estado_Comprobante;
+SELECT * FROM Solicitud_Descarga_Estado_Solicitud;
+SELECT * FROM Solicitud_Descarga_Complemento;
+SELECT * FROM Solicitud_Descarga;
+SELECT * FROM Solicitud_Descarga_Tipo_Solicitud;
+SELECT * FROM VistaGeneralSolicitud;
+
+CALL ListaSolicitudes('hXLtTCe2L0e0PvssJ0TVmS2SQ5o1', '', '', '', -1, -1, -1, '-1','');
+
 DELIMITER //
 CREATE PROCEDURE ListaSolicitudes(
 	IN _uidUserFirebase VARCHAR(200),
     IN _rfcSolicitante VARCHAR(13),
-    IN _fechaInicioPeriodo DATE, 
-    IN _fechaFinPeriodo DATE, 
+    IN _fechaInicioPeriodo VARCHAR(15), 
+    IN _fechaFinPeriodo VARCHAR(15), 
     IN _estadoSolicitud INT, 
     IN _idComplemento INT, 
     IN _estadoComprobante INT, 
-    IN _tipoSolicitud VARCHAR(2), 
+    IN _tipoSolicitud VARCHAR(3), 
     IN _uid VARCHAR(100)
 )
 	BEGIN
@@ -84,13 +110,16 @@ CREATE PROCEDURE ListaSolicitudes(
         complemento, estadoComprobante, tipoSolicitud
         FROM VistaGeneralSolicitud
         WHERE idUsuario=@_IdUsuario
-        AND (_fechaInicioPeriodo='1000-01-01' OR (_fechaInicioPeriodo<>'1000-01-01' AND fechaInicioPeriodo>=_fechaInicioPeriodo))
-        AND (_fechaFinPeriodo='1000-01-01' OR (_fechaFinPeriodo<>'1000-01-01' AND fechaFinPeriodo<=_fechaFinPeriodo))
-        AND (_estado=-1 OR (_estado<>-1 AND idEstado=_estado))
+        AND (_fechaInicioPeriodo='' OR (_fechaInicioPeriodo<>'' 
+			AND (fechaInicioPeriodo>=STR_TO_DATE(_fechaInicioPeriodo, '%d-%m-Y'))))
+        AND (_fechaFinPeriodo='' OR (_fechaFinPeriodo<>'' 
+			AND (fechaFinPeriodo<=STR_TO_DATE(_fechaFinPeriodo, '%d-%m-Y'))))
+        AND (_estadoSolicitud-1 OR (_estadoSolicitud<>-1 AND idEstado=_estadoSolicitud))
         AND (_rfcSolicitante='' OR (_rfcSolicitante<>'' AND rfcSolicitante LIKE CONCAT('%', _rfcSolicitante,'%')))
-        AND (_valor=-1 OR (_valor<>-1 AND estadoComprobante=_valor))
-        AND (_tipoSolicitud=-1 OR (_tipoSolicitud<>-1 AND tipoSolicitud=_tipoSolicitud))
-        AND (_uid='' OR (_uid<>'' AND esUidSolicitado=1 AND uid_uid));
+        AND (_idComplemento=-1 OR (_idComplemento<>-1 AND idComplemento=_idComplemento))
+        AND (_estadoComprobante=-1 OR (_estadoComprobante<>-1 AND idEstadoComprobante=_estadoComprobante))
+        AND (_tipoSolicitud='-1' OR (_tipoSolicitud<>'-1' AND idTipoSolicitud=_tipoSolicitud))
+        AND (_uid='' OR (_uid<>'' AND esUidSolicitado=1 AND uid=_uid));
     END //
 DELIMITER ;
 ;
@@ -167,45 +196,63 @@ CREATE PROCEDURE PuedeHacerSolicitud(
 	IN _IdCliente INT,
     IN _fechaInicioPeriodo DATETIME,
     IN _fechaFinPeriodo DATETIME,
-    IN _rfcEmisor VARCHAR(13),
-    IN _rfcReceptor VARCHAR(13),
-    OUT _OpValida BIT,
-    OUT _Mensaje VARCHAR(1000)
+    OUT _existeSolicitud BIT, 
+    OUT _idDescarga BIGINT,
+    OUT _complemento VARCHAR(15),
+    OUT _estadoComprobante VARCHAR(5),
+    OUT _tipoSolicitud VARCHAR(5), 
+    OUT _receptores JSON
 )
 	BEGIN
-    IF EXISTS(SELECT 1 FROM SolicitudDescarga WHERE rfcEmisor=_rfcEmisor AND rfcReceptor=_rfcReceptor
-		AND fechaInicioPeriodo=_fechaInicioPeriodo AND fechaFinPeriodo=_fechaFinPeriodo)
+    IF EXISTS(SELECT 1 FROM VistaGeneralSolicitud WHERE fechaInicioPeriodo=_fechaInicioPeriodo AND fechaFinPeriodo=_fechaFinPeriodo)
 	THEN 
-		SET @_IdDescarga = -1;
-		SELECT idDescarga FROM SolicitudDescarga WHERE rfcEmisor=_rfcEmisor AND rfcReceptor=_rfcReceptor
-		AND fechaInicioPeriodo=_fechaInicioPeriodo AND fechaFinPeriodo=_fechaFinPeriodo INTO @_IdDescarga;
-        SET @_MensajeVar = "";
-        CALL getTexto(@_IdDescarga, @_MensajeVar);
-        SELECT 0, @_MensajeVar INTO _OpValida, _Mensaje;
+		SET @_idDescarga = -1;
+		SELECT 1, idDescarga, complemento, estadoComprobante, tipoSolicitud 
+        FROM VistaGeneralSolicitud
+        WHERE fechaInicioPeriodo=_fechaInicio AND fechaFinPeriodo=_fechaFinPeriodo
+        INTO _existeSolicitud, @_idDescarga, _complemento, _estadoComprobante, _tipoSolicitud;
+        SELECT JSON_ARRAYAGG(JSON_OBJECT('rfcReceptor', rfcReceptor, 'idDescarga', idDescarga)) 
+        FROM Solicitud_Descarga_Rfc_Receptor WHERE idDescarga=@_idDescarga
+        INTO _receptores;
 	ELSE 
-		SELECT 1, '' INTO _OpValida, _Mensaje;
+		SELECT 0 INTO _existeSolicitud;
 	END IF;
     END //
 DELIMITER ;
 ;
+SELECT * FROM Solicitud_Descarga;
+SELECT * FROM Solicitud_Descarga_Rfc_Receptor;
+DROP PROCEDURE GuardaSolicitud;
+SELECT * FROM Solicitud_Desc;
+
+SET @_idDescarga = -1;
+CALL GuardaSolicitud('2922929292', 5, '01-01-2021', '01-02-2021', 'GAMI9809092A1', 'GAMI9809092A1', 
+	0, 0, '', '-1', '-1', '-1', @_idDescarga);
+SELECT @_idDescarga;
 DELIMITER //
 CREATE PROCEDURE GuardaSolicitud(
-	IN _IdCliente BIGINT,
-    IN _IdDescargaSat VARCHAR(100),
-    IN _RfcSolicitante VARCHAR(13),
-    IN _RfcEmisor VARCHAR(13),
-    IN _RfcReceptor VARCHAR(13),
-    IN _FechaInicioPeriodo DATE,
-    IN _FechaFinPeriodo DATE,
-    OUT _OpValida BIT,
-    OUT _Mensaje VARCHAR(250)
+	IN _idDescargaSat VARCHAR(100),
+    IN _idCliente BIGINT,
+    IN _fechaInicioPeriodo VARCHAR(15),
+    IN _fechaFinPeriodo VARCHAR(15),
+    IN _rfcEmisor VARCHAR(13),
+    IN _rfcSolicitante VARCHAR(13),
+    IN _estado INT, 
+    IN _esUidSolicitado BIT, 
+    IN _uid VARCHAR(200),
+    IN _idComplemento INT, 
+    IN _estadoComprobante INT,
+    IN _tipoSolicitud VARCHAR(3),
+    OUT _idDescarga BIGINT
 )
 	BEGIN
-		INSERT INTO SolicitudDescarga(idCliente, idDescargaSat, rfcSolicitante, rfcEmisor, rfcReceptor, 
-        fechaInicioPeriodo, fechaFinPeriodo)
-        VALUES(_IdCliente, _IdDescargaSat, _RfcSolicitante, _RfcEmisor, _RfcReceptor, _FechaInicioPeriodo, 
-        _FechaFinPeriodo);
-        SELECT 1, CONCAT_WS(' ', 'Solicitud realizada exitosamente. Id: ', _IdDescargaSat) INTO _OpValida, _Mensaje;
+		INSERT INTO Solicitud_Descarga(idDescargaSat, idCliente, fechaInicioPeriodo, fechaFinPeriodo,
+				rfcEmisor, rfcSolicitante, estado, esUidSolicitado,  uid, idComplemento, estadoComprobante, 
+                tipoSolicitud)
+			VALUES (_idDescargaSat, _idCliente, STR_TO_DATE(_fechaInicioPeriodo, "%d-%m-%Y"), 
+            STR_TO_DATE(_fechaFinPeriodo, "%d-%m-%Y"), _rfcEmisor, _rfcSolicitante, 
+            _estado, _esUidSolicitado, _uid, _idComplemento, _estadoComprobante, _tipoSolicitud);
+            SET _idDescarga = LAST_INSERT_ID();
     END //
 DELIMITER ;
 ;
@@ -239,6 +286,34 @@ CREATE PROCEDURE TieneAccesoDetalleSolicitud(
     END //
 DELIMITER ;
 ;
+SET @_idDescarga=7;
+SET @_idDescargaSat = '';
+SET @_idCliente=-1;
+SET @_nombreCliente='';
+SET @_fechaInicioPeriodo = '';
+SET @_fechaFinPeriodo = '';
+SET @_rfcSolicitante = '';
+SET @_rfcReceptores = '';
+SET @_noFacturas = '';
+SET @_esUidSolicitado = 1;
+SET @_uid = '';
+SET @_idEstado = -1;
+SET @_descripcionEstado = '';
+SET @_complemento = '';
+SET @_estadoComprobante = '';
+SET @_tipoSolicitud = '';
+CALL CargaDetalleSolicitud(6, @_idDescargaSat, @_idCliente, @_nombreCliente, @_fechaInicioPeriodo, 
+	@_fechaFinPeriodo, @_rfcSolicitante, @_rfcReceptores, @_noFacturas, @_esUidSolicitado, @_uid,
+    @_idEstado, @_descripcionEstado, @_complemento, @_estadoComprobante, @_tipoSolicitud);
+SELECT  @_idDescarga, @_idDescargaSat, @_idCliente, @_nombreCliente, @_fechaInicioPeriodo, 
+	@_fechaFinPeriodo, @_rfcSolicitante, @_rfcReceptores, @_noFacturas, @_esUidSolicitado, @_uid,
+    @_idEstado, @_descripcionEstado, @_complemento, @_estadoComprobante, @_tipoSolicitud;
+
+SELECT * FROM Solicitud_Descarga;
+SELECT * FROM VistaGeneralSolicitud;
+SELECT 1 FROM Solicitud_Descarga_Rfc_Receptor WHERE idDescarga=2;
+
+DROP PROCEDURE CargaDetalleSolicitud;
 DELIMITER //
 CREATE PROCEDURE CargaDetalleSolicitud(
 	IN _idDescarga BIGINT,
@@ -247,23 +322,42 @@ CREATE PROCEDURE CargaDetalleSolicitud(
     OUT _nombreCliente VARCHAR(300),
     OUT _fechaInicioPeriodo DATE,
     OUT _fechaFinPeriodo DATE,
-    OUT _rfcEmisor VARCHAR(13),
-    OUT _rfcReceptor VARCHAR(13),
     OUT _rfcSolicitante VARCHAR(13),
-    OUT _estado VARCHAR(15),
-    OUT _noFacturas INT, 
-    OUT _descargasPermitidas INT,
-    OUT _estaLista BIT,
-    OUT _urlPaquetes VARCHAR(300)
+    OUT _rfcReceptores JSON,
+    OUT _noFacturas VARCHAR(100), 
+    OUT _esUidSolicitado BIT,
+    OUT _uid VARCHAR(200), 
+    OUT _idEstado INT, 
+    OUT _descripcionEstado VARCHAR(100),
+    OUT _complemento VARCHAR(100),
+    OUT _estadoComprobante VARCHAR(100),
+    OUT _tipoSolicitud VARCHAR(100)
 )
 	BEGIN
-		SELECT idDescargaSat, idCliente, nombreCliente, fechaInicioPeriodo, fechaFinPeriodo, rfcEmisor, rfcReceptor, 
-        rfcSolicitante, estado, noFacturas, descargasPermitidas, 
-        CASE estado WHEN 3 THEN 1 ELSE 0 END, #3 quiere decir que la solicitud ya está lista
-        urlPaquetes
-        FROM VistaGeneralSolicitud WHERE idDescarga=_idDescarga
-        INTO _idDescargaSat, _idCliente, _nombreCliente, _fechaInicioPeriodo, _fechaFinPeriodo, _rfcEmisor, _rfcReceptor, 
-        _rfcSolicitante, _estado, _noFacturas, _descargasPermitidas, _estaLista, _urlPaquetes;
+		SELECT idDescargaSat, idCliente, nombreCliente, fechaInicioPeriodo, fechaFinPeriodo, rfcSolicitante, 
+        IFNULL(noFacturas, 'Aún no disponible'), esUidSolicitado, uid, idEstado, descripcionEstado,
+        complemento, estadoComprobante, tipoSolicitud
+        FROM VistaGeneralSolicitud 
+        WHERE idDescarga=_idDescarga
+        INTO _idDescargaSat, _idCliente, _nombreCliente, _fechaInicioPeriodo, _fechaFinPeriodo, _rfcSolicitante,
+        _noFacturas, _esuidSolicitado, _uid, _idEstado, _descripcionEstado, _complemento, _estadoComprobante, 
+        _tipoSolicitud;
+        IF EXISTS(SELECT 1 FROM Solicitud_Descarga_Rfc_Receptor WHERE idDescarga=_idDescarga)
+		THEN 
+			SELECT JSON_ARRAYAGG(JSON_OBJECT('rfcReceptor', rfcReceptor, 'idDescarga', idDescarga))
+			FROM Solicitud_Descarga_Rfc_Receptor WHERE idDescarga=_idDescarga
+			INTO _rfcReceptores;
+        END IF;
+    END //
+DELIMITER ;
+;
+DELIMITER //
+CREATE PROCEDURE GuardaReceptor(
+	IN _rfcReceptor VARCHAR(13), 
+    IN _idDescarga BIGINT
+)
+	BEGIN
+	INSERT INTO Solicitud_Descarga_Rfc_Receptor(rfcReceptor, idDescarga) VALUES(_rfcReceptor, _idDescarga);
     END //
 DELIMITER ;
 ;

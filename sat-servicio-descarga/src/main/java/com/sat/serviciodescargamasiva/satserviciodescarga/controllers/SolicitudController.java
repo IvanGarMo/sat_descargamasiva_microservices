@@ -4,6 +4,7 @@
  */
 package com.sat.serviciodescargamasiva.satserviciodescarga.controllers;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.sat.serviciodescargamasiva.satserviciodescarga.data.ContrasenaCertificado;
 import com.sat.serviciodescargamasiva.satserviciodescarga.data.ResponseData;
 import com.sat.serviciodescargamasiva.satserviciodescarga.data.Solicitud;
@@ -39,6 +40,9 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import com.sat.serviciodescargamasiva.satserviciodescarga.jdbc.OperacionesValidacionSolicitud;
+import java.text.ParseException;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  *
@@ -46,6 +50,8 @@ import com.sat.serviciodescargamasiva.satserviciodescarga.jdbc.OperacionesValida
  */
 @RestController
 @RequestMapping(path="/solicitudes", produces="application/json")
+@CrossOrigin(origins = "*")
+@Slf4j
 public class SolicitudController {
     @Autowired
     private RequestProvider solicitudConnector;
@@ -60,7 +66,7 @@ public class SolicitudController {
     
     @GetMapping(path="/{idSolicitud}")
     public ResponseEntity<SolicitudDetalle> getSolicitud(@PathVariable("idSolicitud") long idSolicitud, 
-            @RequestHeader("uuid") String uuid) {
+            @RequestHeader("uuid") String uuid) throws ParseException, JsonProcessingException {
         if(authRepo.tieneAccesoSolicitud(idSolicitud, uuid)) {
             SolicitudDetalle solicitud = solicitudRepo.cargaDetalleSolicitud(idSolicitud);
             return new ResponseEntity<>(solicitud, HttpStatus.OK);
@@ -71,87 +77,94 @@ public class SolicitudController {
     
     @PostMapping
     public ResponseEntity<Resultado> realizaSolicitud(@RequestHeader("uuid") String uuid, 
-            @RequestBody Solicitud solicitud, 
-            @CookieValue(value = "token_sat", defaultValue = "") String tokenSat) {
+            @RequestBody Solicitud solicitud) throws ParseException, JsonProcessingException {
         Resultado resultadoOperacion;
         
-        //Primero, es necesario validar que el usuario tenga acceso al cliente
-        if(!authRepo.tieneAccesoCliente(solicitud.getIdCliente(), uuid)) {
-            return new ResponseEntity<>(null, HttpStatus.FORBIDDEN);
+        log.info("Solicitud: "+solicitud.toString());
+        long idDescarga = solicitudRepo.guardaSolicitud(solicitud);
+        if(!solicitud.isEsUidSolicitado() && solicitud.getRfcReceptor().size() > 0) {
+            for(String rfcReceptor: solicitud.getRfcReceptor()) {
+                solicitudRepo.guardaReceptorSolicitudDescarga(idDescarga, rfcReceptor);
+            }
         }
         
-        //Luego, es necesario validar que no haya ninguna otra solicitud con los mismos parámetros
-        resultadoOperacion = existeSolicitud(solicitud);
-        if(resultadoOperacion.isOperacionCorrecta()) { //Notese que aquí es solamente SÍ existe, y el método regresara true si es que existe
-            return new ResponseEntity<>(resultadoOperacion, HttpStatus.BAD_REQUEST);
-        }
-        
-        //Es necesario validar que todos los campos de la solicitud estén en orden
-        //Si no, es enviado de regreso
-        //resultadoOperacion = this.validar(solicitud);
-        if(!resultadoOperacion.isOperacionCorrecta()) 
-            return new ResponseEntity<>(resultadoOperacion, HttpStatus.BAD_REQUEST);
-        
-        //Luego, es necesario validar que el cliente tenga tanto contraseña como certificado
-        resultadoOperacion = this.tieneCertificado(solicitud);
-        if(!resultadoOperacion.isOperacionCorrecta()) {
-            return new ResponseEntity<>(resultadoOperacion, HttpStatus.BAD_REQUEST);
-        }
-        
-        resultadoOperacion = this.tieneContrasena(solicitud);
-        if(!resultadoOperacion.isOperacionCorrecta()) {
-            return new ResponseEntity<>(resultadoOperacion, HttpStatus.BAD_REQUEST);
-        }
-        
-        //Obtengo el certificado y la llave del cliente
-        //ContrasenaCertificado contCert = authRepo.cargaDatosAutenticacion(solicitud.getIdCliente());
-        ContrasenaCertificado contCert = new ContrasenaCertificado();
-        InputStream inputStream = new ByteArrayInputStream(contCert.getCertificado());
-        char[] passwordPFX = contCert.getContrasena().toCharArray();
-        
-        X509Certificate certificate;
-        PrivateKey privateKey;
-        try {
-            certificate =  authProvider.getCertificate(inputStream, passwordPFX);
-            privateKey = authProvider.getPrivateKey(inputStream, passwordPFX);
-        } catch(KeyStoreException ex) {
-            String mensaje = "Ha habido un fallo. Por favor, revise que esté usando el certificado y contraseñas correctas";
-            resultadoOperacion = new Resultado();
-            resultadoOperacion.setOperacionCorrecta(false);
-            resultadoOperacion.setMensaje(mensaje);
-            return new ResponseEntity<>(resultadoOperacion, HttpStatus.BAD_REQUEST);
-        } catch(IOException ex) {
-            return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
-        } catch(CertificateException ex) {
-            return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
-        } catch(NoSuchAlgorithmException ex) {
-            return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
-        } catch(UnrecoverableKeyException ex) {
-            return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
-        } catch(Exception ex) {
-            return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
-        }
-        
-        //Realizo la comunicación con el SAT
-        try {
-            //resultadoOperacion = solicitudConnector.doRequest(certificate, 
-            //            privateKey, 
-            //            solicitud.getRfcSolicitante(),
-            //            solicitud.getRfcEmisor(),
-            //            solicitud.getRfcReceptor(),
-            //            solicitud.getFechaInicioPeriodo(),
-            //            solicitud.getFechaFinPeriodo(),
-            //            TipoSolicitud.CFDI
-            //            );
-        } catch(Exception ex) {
-            
-        }
-        
+//        //Primero, es necesario validar que el usuario tenga acceso al cliente
+//        if(!authRepo.tieneAccesoCliente(solicitud.getIdCliente(), uuid)) {
+//            return new ResponseEntity<>(null, HttpStatus.FORBIDDEN);
+//        }
+//        
+//        //Luego, es necesario validar que no haya ninguna otra solicitud con los mismos parámetros
+//        resultadoOperacion = existeSolicitud(solicitud);
+//        if(resultadoOperacion.isOperacionCorrecta()) { //Notese que aquí es solamente SÍ existe, y el método regresara true si es que existe
+//            return new ResponseEntity<>(resultadoOperacion, HttpStatus.BAD_REQUEST);
+//        }
+//        
+//        //Es necesario validar que todos los campos de la solicitud estén en orden
+//        //Si no, es enviado de regreso
+//        //resultadoOperacion = this.validar(solicitud);
+//        if(!resultadoOperacion.isOperacionCorrecta()) 
+//            return new ResponseEntity<>(resultadoOperacion, HttpStatus.BAD_REQUEST);
+//        
+//        //Luego, es necesario validar que el cliente tenga tanto contraseña como certificado
+//        resultadoOperacion = this.tieneCertificado(solicitud);
+//        if(!resultadoOperacion.isOperacionCorrecta()) {
+//            return new ResponseEntity<>(resultadoOperacion, HttpStatus.BAD_REQUEST);
+//        }
+//        
+//        resultadoOperacion = this.tieneContrasena(solicitud);
+//        if(!resultadoOperacion.isOperacionCorrecta()) {
+//            return new ResponseEntity<>(resultadoOperacion, HttpStatus.BAD_REQUEST);
+//        }
+//        
+//        //Obtengo el certificado y la llave del cliente
+//        //ContrasenaCertificado contCert = authRepo.cargaDatosAutenticacion(solicitud.getIdCliente());
+//        ContrasenaCertificado contCert = new ContrasenaCertificado();
+//        InputStream inputStream = new ByteArrayInputStream(contCert.getCertificado());
+//        char[] passwordPFX = contCert.getContrasena().toCharArray();
+//        
+//        X509Certificate certificate;
+//        PrivateKey privateKey;
+//        try {
+//            certificate =  authProvider.getCertificate(inputStream, passwordPFX);
+//            privateKey = authProvider.getPrivateKey(inputStream, passwordPFX);
+//        } catch(KeyStoreException ex) {
+//            String mensaje = "Ha habido un fallo. Por favor, revise que esté usando el certificado y contraseñas correctas";
+//            resultadoOperacion = new Resultado();
+//            resultadoOperacion.setOperacionCorrecta(false);
+//            resultadoOperacion.setMensaje(mensaje);
+//            return new ResponseEntity<>(resultadoOperacion, HttpStatus.BAD_REQUEST);
+//        } catch(IOException ex) {
+//            return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
+//        } catch(CertificateException ex) {
+//            return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
+//        } catch(NoSuchAlgorithmException ex) {
+//            return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
+//        } catch(UnrecoverableKeyException ex) {
+//            return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
+//        } catch(Exception ex) {
+//            return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
+//        }
+//        
+//        //Realizo la comunicación con el SAT
+//        try {
+//            //resultadoOperacion = solicitudConnector.doRequest(certificate, 
+//            //            privateKey, 
+//            //            solicitud.getRfcSolicitante(),
+//            //            solicitud.getRfcEmisor(),
+//            //            solicitud.getRfcReceptor(),
+//            //            solicitud.getFechaInicioPeriodo(),
+//            //            solicitud.getFechaFinPeriodo(),
+//            //            TipoSolicitud.CFDI
+//            //            );
+//        } catch(Exception ex) {
+//            
+//        }
+//        
         //Guardo resultado en la base de datos
-        ResponseData rd = solicitudRepo.guardaSolicitud(solicitud);
-        resultadoOperacion.setMensaje(rd.getMensaje());
-        resultadoOperacion.setOperacionCorrecta(rd.isOpValida());
-        return new ResponseEntity<>(resultadoOperacion, HttpStatus.OK);
+        //ResponseData rd = solicitudRepo.guardaSolicitud(solicitud);
+        //resultadoOperacion.setMensaje(rd.getMensaje());
+        //resultadoOperacion.setOperacionCorrecta(rd.isOpValida());
+        return new ResponseEntity<>(null, HttpStatus.OK);
     }
     
     private Resultado tieneCertificado(Solicitud solicitud) {

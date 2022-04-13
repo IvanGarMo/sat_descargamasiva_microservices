@@ -57,41 +57,42 @@ CREATE TABLE Solicitud_Descarga_Complemento(
     descripcion VARCHAR(200)
 )
 ;
-INSERT INTO Solicitud_Descarga_Complemento(valor, descripcion) VALUE("acreditamientoieps10", "");
-INSERT INTO Solicitud_Descarga_Complemento(valor, descripcion) VALUE("aerolineas", "");
-INSERT INTO Solicitud_Descarga_Complemento(valor, descripcion) VALUE("certificadodedestruccion", "");
-INSERT INTO Solicitud_Descarga_Complemento(valor, descripcion) VALUE("cfdiregistrofiscal", "");
-INSERT INTO Solicitud_Descarga_Complemento(valor, descripcion) VALUE("comercioexterior10", "");
-INSERT INTO Solicitud_Descarga_Complemento(valor, descripcion) VALUE("comercioexterior11", "");
-INSERT INTO Solicitud_Descarga_Complemento(valor, descripcion) VALUE("comprobante", "");
-INSERT INTO Solicitud_Descarga_Complemento(valor, descripcion) VALUE("consumodecombustibles", "");
-INSERT INTO Solicitud_Descarga_Complemento(valor, descripcion) VALUE("consumodecombustibles11", "");
-INSERT INTO Solicitud_Descarga_Complemento(valor, descripcion) VALUE("detallista", "");
-INSERT INTO Solicitud_Descarga_Complemento(valor, descripcion) VALUE("divisas", "");
-INSERT INTO Solicitud_Descarga_Complemento(valor, descripcion) VALUE("donat11", "");
-INSERT INTO Solicitud_Descarga_Complemento(valor, descripcion) VALUE("ecc11", "");
-INSERT INTO Solicitud_Descarga_Complemento(valor, descripcion) VALUE("ecc12", "");
-INSERT INTO Solicitud_Descarga_Complemento(valor, descripcion) VALUE("gastoshidrocarburos10", "");
-INSERT INTO Solicitud_Descarga_Complemento(valor, descripcion) VALUE("iedu", "");
-INSERT INTO Solicitud_Descarga_Complemento(valor, descripcion) VALUE("implocal", "");
-INSERT INTO Solicitud_Descarga_Complemento(valor, descripcion) VALUE("ine11", "");
-INSERT INTO Solicitud_Descarga_Complemento(valor, descripcion) VALUE("ingresoshidrocarburos", "");
-INSERT INTO Solicitud_Descarga_Complemento(valor, descripcion) VALUE("leyendasfisc", "");
-INSERT INTO Solicitud_Descarga_Complemento(valor, descripcion) VALUE("nomina11", "");
-INSERT INTO Solicitud_Descarga_Complemento(valor, descripcion) VALUE("nomina12", "");
-INSERT INTO Solicitud_Descarga_Complemento(valor, descripcion) VALUE("notariospublicos", "");
-INSERT INTO Solicitud_Descarga_Complemento(valor, descripcion) VALUE("obrasarteantiguedades", "");
-INSERT INTO Solicitud_Descarga_Complemento(valor, descripcion) VALUE("pagoenespecie", "");
-INSERT INTO Solicitud_Descarga_Complemento(valor, descripcion) VALUE("pagos10", "");
-INSERT INTO Solicitud_Descarga_Complemento(valor, descripcion) VALUE("pfic", "");
-INSERT INTO Solicitud_Descarga_Complemento(valor, descripcion) VALUE("renovacionysustitucionvehiculos", "");
-INSERT INTO Solicitud_Descarga_Complemento(valor, descripcion) VALUE("servicioparcialconstruccion", "");
-INSERT INTO Solicitud_Descarga_Complemento(valor, descripcion) VALUE("spei", "");
-INSERT INTO Solicitud_Descarga_Complemento(valor, descripcion) VALUE("terceros11", "");
-INSERT INTO Solicitud_Descarga_Complemento(valor, descripcion) VALUE("turistapasajeroextranjero", "");
-INSERT INTO Solicitud_Descarga_Complemento(valor, descripcion) VALUE("valesdedespensa", "");
-INSERT INTO Solicitud_Descarga_Complemento(valor, descripcion) VALUE("vehiculousado", "");
-INSERT INTO Solicitud_Descarga_Complemento(valor, descripcion) VALUE("ventavehiculos11", "");
+INSERT INTO Solicitud_Descarga_Complemento(valor, descripcioN) VALUE("-1", "Todos");
+INSERT INTO Solicitud_Descarga_Complemento(valor, descripcion) VALUE("acreditamientoieps10", "Acreditamiento del IEPS");
+INSERT INTO Solicitud_Descarga_Complemento(valor, descripcion) VALUE("aerolineas", "Aerolíneas");
+INSERT INTO Solicitud_Descarga_Complemento(valor, descripcion) VALUE("certificadodedestruccion", "Certificado de destrucción");
+INSERT INTO Solicitud_Descarga_Complemento(valor, descripcion) VALUE("cfdiregistrofiscal", "CFDI Registro Fiscal");
+INSERT INTO Solicitud_Descarga_Complemento(valor, descripcion) VALUE("comercioexterior10", "Comercio Exterior (1.0)");
+INSERT INTO Solicitud_Descarga_Complemento(valor, descripcion) VALUE("comercioexterior11", "Comercio Exterior (1.1)");
+INSERT INTO Solicitud_Descarga_Complemento(valor, descripcion) VALUE("comprobante", "Comprobante");
+INSERT INTO Solicitud_Descarga_Complemento(valor, descripcion) VALUE("consumodecombustibles", "Consumo de Combustibles (1.0)");
+INSERT INTO Solicitud_Descarga_Complemento(valor, descripcion) VALUE("consumodecombustibles11", "Consumo de Combustibles (1.1)");
+INSERT INTO Solicitud_Descarga_Complemento(valor, descripcion) VALUE("detallista", "Sector de ventas al detalle");
+INSERT INTO Solicitud_Descarga_Complemento(valor, descripcion) VALUE("divisas", "Compra venta de divisas");
+INSERT INTO Solicitud_Descarga_Complemento(valor, descripcion) VALUE("donat11", "Donatarias (1.1)");
+INSERT INTO Solicitud_Descarga_Complemento(valor, descripcion) VALUE("ecc11", "Estado de Cuenta Combustible (1.1)");
+INSERT INTO Solicitud_Descarga_Complemento(valor, descripcion) VALUE("ecc12", "Estado de Cuenta Combustible (1.2)");
+INSERT INTO Solicitud_Descarga_Complemento(valor, descripcion) VALUE("gastoshidrocarburos10", "Hidrocarburos (1.0)");
+INSERT INTO Solicitud_Descarga_Complemento(valor, descripcion) VALUE("iedu", "Instituciones Educativas Privadas");
+INSERT INTO Solicitud_Descarga_Complemento(valor, descripcion) VALUE("implocal", "Impuestos locales");
+INSERT INTO Solicitud_Descarga_Complemento(valor, descripcion) VALUE("ine11", "INE");
+INSERT INTO Solicitud_Descarga_Complemento(valor, descripcion) VALUE("ingresoshidrocarburos", "Ingreso hidrocarburos");
+INSERT INTO Solicitud_Descarga_Complemento(valor, descripcion) VALUE("leyendasfisc", "Leyendas Fiscales");
+INSERT INTO Solicitud_Descarga_Complemento(valor, descripcion) VALUE("nomina11", "Nómina (1.1)");
+INSERT INTO Solicitud_Descarga_Complemento(valor, descripcion) VALUE("nomina12", "Nómina (1.2)");
+INSERT INTO Solicitud_Descarga_Complemento(valor, descripcion) VALUE("notariospublicos", "Notarios públicos");
+INSERT INTO Solicitud_Descarga_Complemento(valor, descripcion) VALUE("obrasarteantiguedades", "Obras de arte plástica y antiguedades");
+INSERT INTO Solicitud_Descarga_Complemento(valor, descripcion) VALUE("pagoenespecie", "Pago en especie");
+INSERT INTO Solicitud_Descarga_Complemento(valor, descripcion) VALUE("pagos10", "Pagos (1.0)");
+INSERT INTO Solicitud_Descarga_Complemento(valor, descripcion) VALUE("pfic", "Persona física integrante de coordinado");
+INSERT INTO Solicitud_Descarga_Complemento(valor, descripcion) VALUE("renovacionysustitucionvehiculos", "Renovación y sustitución de vehículos");
+INSERT INTO Solicitud_Descarga_Complemento(valor, descripcion) VALUE("servicioparcialconstruccion", "Servicios parciales de construcción");
+INSERT INTO Solicitud_Descarga_Complemento(valor, descripcion) VALUE("spei", "SPEI de tercero a tercero");
+INSERT INTO Solicitud_Descarga_Complemento(valor, descripcion) VALUE("terceros11", "Terceros");
+INSERT INTO Solicitud_Descarga_Complemento(valor, descripcion) VALUE("turistapasajeroextranjero", "Turista pasajero extranjero");
+INSERT INTO Solicitud_Descarga_Complemento(valor, descripcion) VALUE("valesdedespensa", "Vales de despensa");
+INSERT INTO Solicitud_Descarga_Complemento(valor, descripcion) VALUE("vehiculousado", "Vehículo usado");
+INSERT INTO Solicitud_Descarga_Complemento(valor, descripcion) VALUE("ventavehiculos11", "Venta de vehículos");
 ;
 CREATE TABLE Solicitud_Descarga(
 	idDescarga BIGINT PRIMARY KEY AUTO_INCREMENT,
@@ -123,6 +124,8 @@ CREATE TABLE Solicitud_Descarga_Estado_Solicitud(
     descripcionEstado VARCHAR(100)
 )
 ;
+INSERT INTO Solicitud_Descarga_Estado_Solicitud(idEstado, descripcionEstado) VALUES(-1, "Todas");
+INSERT INTO Solicitud_Descarga_Estado_Solicitud(idEstado, descripcionEstado) VALUES(0, "Información no disponible");
 INSERT INTO Solicitud_Descarga_Estado_Solicitud(idEstado, descripcionEstado) VALUES(1, 'Aceptada');
 INSERT INTO Solicitud_Descarga_Estado_Solicitud(idEstado, descripcionEstado) VALUES(2, 'En proceso');
 INSERT INTO Solicitud_Descarga_Estado_Solicitud(idEstado, descripcionEstado) VALUES(3, 'Terminada');
@@ -136,14 +139,37 @@ CREATE TABLE Solicitud_Descarga_Paquetes_Url(
     urlPaquetes VARCHAR(300)
 )
 ;
+USE SatDescargaMasiva;
+SELECT * FROM Solicitud_Descarga;
+SELECT * FROM Solicitud_Descarga_Estado_Solicitud;
+SELECT * FROM Solicitud_Descarga_Estado_Solicitud;
+SELECT * FROM VistaGeneralSolicitud;
+SELECT * FROM Solicitud_Descarga_Tipo_Solicitud;
+DROP VIEW VistaGeneralSolicitud;
+SELECT * FROM Solicitud_Descarga_Estado_Comprobante;
+SELECT * FROM Cliente_Usuario;
+SELECT * FROM Solicitud_Descarga;
+SELECT * FROM Solicitud_Descarga_Rfc_Receptor;
+;
+DROP VIEW VistaGeneralSolicitud;
+
+SELECT * FROM Solicitud_Descarga;
+SELECT * FROM VistaGeneralSolicitud;
+SELECT * FROM Cliente;
+
+SELECT * FROM Solicitud_Descarga_Rfc_Receptor;
+
 CREATE VIEW VistaGeneralSolicitud AS
-SELECT SD.idDescarga, SD.idCliente, SD.fechaInicioPeriodo, SD.fechaFinPeriodo,
-	SD.rfcSolicitante, SD.noFacturas,
+SELECT SD.idDescarga, SD.idDescargaSat, SD.idCliente, CU.idUsuario, SD.fechaInicioPeriodo, SD.fechaFinPeriodo,
+	SD.rfcSolicitante, SD.rfcEmisor, 
+    SD.noFacturas,
     SD.esUidSolicitado, SD.uid,
     SDES.idEstado, IFNULL(SDES.descripcionEstado, 'No disponible') AS descripcionEstado, 
     CONCAT_WS(' ', C.nombre, C.apPaterno, C.apMaterno) AS nombreCliente,
     IFNULL(idComplemento, -1) AS idComplemento,
-    IFNULL(SDC.descripcion, 'Ninguno') as complemento, SDEC.descripcion AS estadoComprobante,
+    IFNULL(SDC.descripcion, 'Ninguno') as complemento, SDEC.valor AS idEstadoComprobante,
+    SDEC.descripcion AS estadoComprobante,
+    SDTS.valor AS idTipoSolicitud,
     SDTS.descripcion AS tipoSolicitud
 FROM Solicitud_Descarga SD
 JOIN Cliente C ON SD.idCliente=C.idCliente

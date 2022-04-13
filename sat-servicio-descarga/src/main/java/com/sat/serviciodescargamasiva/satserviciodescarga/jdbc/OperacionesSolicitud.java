@@ -4,10 +4,12 @@
  */
 package com.sat.serviciodescargamasiva.satserviciodescarga.jdbc;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.sat.serviciodescargamasiva.satserviciodescarga.data.FiltroBusqueda;
 import com.sat.serviciodescargamasiva.satserviciodescarga.data.ResponseData;
 import com.sat.serviciodescargamasiva.satserviciodescarga.data.Solicitud;
 import com.sat.serviciodescargamasiva.satserviciodescarga.data.SolicitudDetalle;
+import java.text.ParseException;
 /**
  *
  * @author IvanGarMo
@@ -15,8 +17,8 @@ import com.sat.serviciodescargamasiva.satserviciodescarga.data.SolicitudDetalle;
 public interface OperacionesSolicitud {
     Object listaSolicitudes(String uuid, FiltroBusqueda filtro);
     Object listaEstados();
-    ResponseData guardaSolicitud(Solicitud solicitud);
-    SolicitudDetalle cargaDetalleSolicitud(long idDescarga);
+    long guardaSolicitud(Solicitud solicitud) throws ParseException;
+    SolicitudDetalle cargaDetalleSolicitud(long idDescarga) throws ParseException, JsonProcessingException;
     String cargaUrlPaquetes(long idDescarga);
     ResponseData guardaUrlPaquete(long idDescarga, String urlPaquete);
     void guardaEstadoSolicitud(long idDescarga, int nuevoEstado);

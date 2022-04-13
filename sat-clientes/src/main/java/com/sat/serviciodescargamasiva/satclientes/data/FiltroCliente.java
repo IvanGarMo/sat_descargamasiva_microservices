@@ -16,4 +16,9 @@ public class FiltroCliente {
     private String nombre;
     private String apPaterno;
     private String apMaterno;
+    
+    @Override
+    public String toString() {
+        return "[  Rfc: "+this.rfc+" Nombre: "+this.nombre+" ApPaterno "+this.apPaterno+" ApMaterno "+this.apMaterno+"]";
+    }
 }

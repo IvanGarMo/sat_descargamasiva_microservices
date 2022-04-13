@@ -380,6 +380,7 @@ CREATE PROCEDURE guardaClienteKeyNube(
 		ELSE 
 			INSERT INTO Cliente_Key_Nube(idCliente, cuentaConKey, urlKey) 
 				VALUES(_idCliente, 1, _urlKey);
+			SELECT 1, 'Archivo Key guardado exitosamente' INTO _OpValida, _Mensaje;
         END IF;
     END//
 DELIMITER ;

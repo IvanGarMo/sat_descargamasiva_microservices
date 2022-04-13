@@ -4,6 +4,9 @@
  */
 package com.sat.serviciodescargamasiva.satserviciodescarga.jdbc;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sat.serviciodescargamasiva.satserviciodescarga.data.FiltroBusqueda;
 import com.sat.serviciodescargamasiva.satserviciodescarga.data.ResponseData;
 import com.sat.serviciodescargamasiva.satserviciodescarga.data.Solicitud;
@@ -18,12 +21,19 @@ import org.springframework.jdbc.core.SqlParameter;
 import org.springframework.jdbc.core.simple.SimpleJdbcCall;
 import org.springframework.jdbc.object.StoredProcedure;
 import org.springframework.stereotype.Repository;
-
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.List;
+import lombok.Data;
+import java.text.ParseException;
+import lombok.extern.slf4j.Slf4j;
 /**
  *
  * @author IvanGarMo
  */
 @Repository
+@Slf4j
 public class OperacionesSolicitudImplementacion implements OperacionesSolicitud {
     @Autowired
     private JdbcTemplate jdbcTemplate;
@@ -33,8 +43,8 @@ public class OperacionesSolicitudImplementacion implements OperacionesSolicitud 
         MyStoredProcedure mp = new MyStoredProcedure(jdbcTemplate, "ListaSolicitudes");
         SqlParameter paramUid = new SqlParameter("_uidUserFirebase", Types.VARCHAR);
         SqlParameter rfcEmisor = new SqlParameter("_rfcSolicitante", Types.VARCHAR);
-        SqlParameter fechaInicioPeriodo = new SqlParameter("_fechaInicioPeriodo", Types.DATE);
-        SqlParameter fechaFinPeriodo = new SqlParameter("_fechaFinPeriodo", Types.DATE);
+        SqlParameter fechaInicioPeriodo = new SqlParameter("_fechaInicioPeriodo", Types.VARCHAR);
+        SqlParameter fechaFinPeriodo = new SqlParameter("_fechaFinPeriodo", Types.VARCHAR);
         SqlParameter estado = new SqlParameter("_estadoSolicitud", Types.INTEGER);
         SqlParameter idComplemento = new SqlParameter("_idComplemento", Types.INTEGER);
         SqlParameter estadoComprobante = new SqlParameter("_estadoComprobante", Types.INTEGER);
@@ -55,14 +65,13 @@ public class OperacionesSolicitudImplementacion implements OperacionesSolicitud 
         inParams.put("_estadoComprobante", filtro.getEstadoComprobante());
         inParams.put("_tipoSolicitud", filtro.getTipoSolicitud());
         inParams.put("_uid", filtro.getUid());
-        
         Map<String, Object> out = mp.execute(inParams);
         return out.get("#result-set-1");
     }
     
     @Override
     public Object listaEstados() {
-        MyStoredProcedure mp = new MyStoredProcedure(jdbcTemplate, "listaEstadoSolicitud");
+        MyStoredProcedure mp = new MyStoredProcedure(jdbcTemplate, "estadoListaSolicitud");
         mp.compile();
         
         Map<String, Object> inParams = new HashMap<>();
@@ -71,26 +80,33 @@ public class OperacionesSolicitudImplementacion implements OperacionesSolicitud 
     }
 
     @Override
-    public ResponseData guardaSolicitud(Solicitud solicitud) {
+    public long guardaSolicitud(Solicitud solicitud) throws ParseException {
         SimpleJdbcCall jdbc = new SimpleJdbcCall(jdbcTemplate).withProcedureName("GuardaSolicitud");
         Map<String, Object> inParam = new HashMap<>();
-        inParam.put("_IdCliente", solicitud.getIdCliente());
-        inParam.put("_IdDescargaSat", solicitud.getIdDescarga());
-        inParam.put("_RfcSolicitante", solicitud.getRfcSolicitante());
-        inParam.put("_RfcEmisor", solicitud.getRfcEmisor());
-        inParam.put("_RfcReceptor", solicitud.getRfcReceptor());
-        inParam.put("_FechaInicioPeriodo", solicitud.getFechaInicioPeriodo());
-        inParam.put("_FechaFinPeriodo", solicitud.getFechaFinPeriodo());
+        inParam.put("_idCliente", solicitud.getIdCliente());
+        inParam.put("_idDescargaSat", solicitud.getIdDescarga());
+        inParam.put("_rfcSolicitante", solicitud.getRfcSolicitante());
+        inParam.put("_rfcEmisor", solicitud.getRfcEmisor());
+        inParam.put("_fechaInicioPeriodo", solicitud.getFechaInicioPeriodo());
+        inParam.put("_fechaFinPeriodo", solicitud.getFechaFinPeriodo());
+        inParam.put("_estado", solicitud.getEstadoSolicitud());
+        inParam.put("_esUidSolicitado", solicitud.isEsUidSolicitado());
+        inParam.put("_uid", solicitud.getUid());
+        inParam.put("_idComplemento", solicitud.getComplemento());
+        inParam.put("_estadoComprobante", solicitud.getEstadoComprobante());
+        inParam.put("_tipoSolicitud", solicitud.getTipoSolicitud());
+        
         
         Map<String, Object> out = jdbc.execute(inParam);
-        ResponseData rd = new ResponseData();
-        rd.setOpValida((boolean) out.get("_opvalida"));
-        rd.setMensaje(out.get("_mensaje").toString());
-        return rd;
+        out.keySet().forEach(k -> {
+            log.info("Key: "+k);
+            log.info("Value: "+out.get(k).toString());
+        });
+        return ((long) out.get("_iddescarga"));
     }
 
     @Override
-    public SolicitudDetalle cargaDetalleSolicitud(long idDescarga) {
+    public SolicitudDetalle cargaDetalleSolicitud(long idDescarga) throws ParseException, JsonProcessingException {
         SolicitudDetalle solicitud = new SolicitudDetalle();
         SimpleJdbcCall jdbc = new SimpleJdbcCall(jdbcTemplate).withProcedureName(("CargaDetalleSolicitud"));
         Map<String, Object> inParam = new HashMap<>();
@@ -101,16 +117,39 @@ public class OperacionesSolicitudImplementacion implements OperacionesSolicitud 
         solicitud.setIdDescargaSat(out.get("_iddescargasat").toString());
         solicitud.setIdCliente((long) out.get("_idcliente"));
         solicitud.setNombreCliente(out.get("_nombrecliente").toString());
-        solicitud.setFechaInicioPeriodo((Date) out.get("_fechainicioperiodo"));
-        solicitud.setFechaFinPeriodo((Date) out.get("_fechafinperiodo"));
-        solicitud.setRfcEmisor(out.get("_rfcemisor").toString());
-        solicitud.setRfcReceptor(out.get("_rfcreceptor").toString());
+        
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+        String fechaInicioPeriodo = out.get("_fechainicioperiodo").toString();
+        solicitud.setFechaInicioPeriodo(sdf.parse(fechaInicioPeriodo));
+        
+        String fechaFinPeriodo = out.get("_fechafinperiodo").toString();
+        solicitud.setFechaFinPeriodo(sdf.parse(fechaFinPeriodo));
         solicitud.setRfcSolicitante(out.get("_rfcsolicitante").toString());
-        solicitud.setEstado(out.get("_estado").toString());
-        solicitud.setNoFacturas((int) out.get("_nofacturas"));
-        solicitud.setDescargasPermitidas((int) out.get("_descargaspermitidas"));
-        solicitud.setListoParaDescarga((boolean) out.get("_estalista"));
-        solicitud.setUrlPaquetes(out.get("_urlpaquetes").toString());
+        
+        String json;
+        if(out.get("_rfcreceptores") == null) { //Lo regreso como nulo de la BD debido a errores de procesamiento allí
+            json = "";
+        } else {
+            json = out.get("_rfcreceptores").toString();
+        }
+        List<String> rfcReceptores = new ArrayList<>();
+        if(!json.isEmpty() && !json.isBlank()) {
+            ObjectMapper objectMapper = new ObjectMapper();
+            List<ObjetoJson> listReceptores = objectMapper.readValue(json, new TypeReference<List<ObjetoJson>>(){});
+            listReceptores.forEach(objetoJson -> {
+                rfcReceptores.add(objetoJson.getRfcReceptor());
+            });
+        }
+        solicitud.setRfcReceptores(rfcReceptores);
+        solicitud.setNoFacturas(out.get("_nofacturas").toString());
+        solicitud.setEsUid((boolean) out.get("_esuidsolicitado"));
+        solicitud.setUid(out.get("_uid").toString());
+        solicitud.setIdEstadoSolicitud((int) out.get("_idestado"));
+        solicitud.setDescripcionEstadoSolicitud(out.get("_descripcionestado").toString());
+        solicitud.setComplemento(out.get("_complemento").toString());
+        solicitud.setEstadoComprobante(out.get("_estadocomprobante").toString());
+        solicitud.setTipoSolicitud(out.get("_tiposolicitud").toString());
+
         return solicitud;
     }
 
@@ -179,7 +218,7 @@ public class OperacionesSolicitudImplementacion implements OperacionesSolicitud 
 
     @Override
     public void guardaReceptorSolicitudDescarga(long idDescarga, String rfcReceptor) {
-        SimpleJdbcCall jdbc = new SimpleJdbcCall(jdbcTemplate).withProcedureName("guardaRfcReceptorSolicitud");
+        SimpleJdbcCall jdbc = new SimpleJdbcCall(jdbcTemplate).withProcedureName("GuardaReceptor");
         Map<String, Object> inParam = new HashMap<>();
         inParam.put("_idDescarga", idDescarga);
         inParam.put("_rfcReceptor", rfcReceptor);
@@ -187,9 +226,15 @@ public class OperacionesSolicitudImplementacion implements OperacionesSolicitud 
     }
 }
 
-    class MyStoredProcedure extends StoredProcedure {
-        public MyStoredProcedure(JdbcTemplate template, String name) {
-            super(template, name);
-            setFunction(false);
-        }
-    } 
+class MyStoredProcedure extends StoredProcedure {
+    public MyStoredProcedure(JdbcTemplate template, String name) {
+       super(template, name);
+       setFunction(false);
+    }
+}
+
+@Data
+class ObjetoJson {
+    private String rfcReceptor;
+    private long idDescarga;
+}

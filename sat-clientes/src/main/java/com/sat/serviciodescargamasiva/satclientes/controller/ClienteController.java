@@ -81,9 +81,11 @@ public class ClienteController {
     @PostMapping(path="/lista")
     public ResponseEntity<Object> cargaListaClientes(@RequestHeader("uuid") String uuid, 
             @RequestBody FiltroCliente filtroCliente) {
+        log.info("FiltroCliente: "+filtroCliente.toString());
         Object clientes = operacionesCliente.getClientes(uuid, 
                 filtroCliente.getRfc(), filtroCliente.getNombre(), filtroCliente.getApPaterno(), 
                 filtroCliente.getApMaterno());
+        log.info("Objeto resultadO: "+clientes);
         return new ResponseEntity<>(clientes, HttpStatus.OK);
     }
     

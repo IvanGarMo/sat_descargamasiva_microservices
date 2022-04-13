@@ -4,6 +4,7 @@
  */
 package com.sat.serviciodescargamasiva.satserviciodescarga.jdbc;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.sat.serviciodescargamasiva.satserviciodescarga.data.Solicitud;
 import com.sat.serviciodescargamasiva.satserviciodescarga.data.ResponseData;
 import java.text.ParseException;
@@ -12,5 +13,5 @@ import java.text.ParseException;
  * @author IvanGarMo
  */
 public interface OperacionesValidacionSolicitud {
-    ResponseData esValidaSolicitud(Solicitud solicitud) throws ParseException;
+    ResponseData esValidaSolicitud(Solicitud solicitud) throws ParseException, JsonProcessingException;
 }
